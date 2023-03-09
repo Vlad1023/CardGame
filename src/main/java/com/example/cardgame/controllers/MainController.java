@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.Console;
 
@@ -17,10 +18,10 @@ public class MainController {
     @GetMapping(value = "/")
     public String Index(Model model){
 
-        return "index";
+        return "main";
     }
     @PostMapping(value = "/addUser")
-    public String AddUser(String userName){
+    public String AddUser(@RequestBody String userName){
         userRepository.save(new User(userName));
         return "index";
     }
