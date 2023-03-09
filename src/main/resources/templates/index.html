@@ -4,7 +4,7 @@
     <title>Getting Started: Serving Web Content</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link th:href="@{/main.css}" rel="stylesheet" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 </head>
 <body>
 <div class="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -18,7 +18,9 @@
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
                     <label  for="name" class="sr-only">Name</label>
-                    <input id="name" name="name" type="text" autocomplete="name" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Enter your name">
+                    <div x-data="{ name: '' }">
+                        <input id="name" x-model="name" x-on:input="nameChanged($event.target.value)" name="name" type="text" autocomplete="name" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Enter your name">
+                    </div>
                 </div>
             </div>
 
@@ -39,9 +41,7 @@
 </html>
 
 <script type="application/javascript">
-    $(document).ready(function() {
-      $('#buttonContinue').click(function() {
-        alert('Hello');
-      });
-    });
+  function nameChanged(name) {
+    alert(name);
+  }
 </script>
