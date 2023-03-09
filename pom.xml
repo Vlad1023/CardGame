@@ -75,6 +75,16 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>npm build</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<workingDirectory>src/main/frontend</workingDirectory>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+					<execution>
 						<id>npm-watch</id>
 						<goals>
 							<goal>npm</goal>
