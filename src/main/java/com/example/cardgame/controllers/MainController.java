@@ -19,9 +19,14 @@ public class MainController {
 
         return "login";
     }
+    @GetMapping(value = "/main")
+    public String MainPage(Model model){
+
+        return "main";
+    }
     @PostMapping(value = "/addUser")
     public String AddUser(@RequestBody String userName){
         //ModelAndView modelAndView = new ModelAndView("main");
-        return "main";
+        return "redirect:/main";
     }
 }
