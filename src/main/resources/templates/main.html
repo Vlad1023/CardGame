@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body class="bg-gray-200">
+<div x-data="{ gameName: ''}">
 <div class="flex flex-row h-screen">
     <!-- Left column with game list -->
     <div class="bg-gray-800 text-white w-1/3 p-4">
@@ -37,10 +38,10 @@
                     <label class="block text-gray-700 font-bold mb-2" for="game-name">
                         Game Name
                     </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="game-name" type="text" placeholder="Enter game name">
+                    <input x-model="gameName" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="game-name" type="text" placeholder="Enter game name">
                 </div>
                 <div class="flex items-center justify-between">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                    <button x-show="gameName" x-on:click="createNewGame(gameName)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
                         Create Game
                     </button>
                 </div>
@@ -48,5 +49,25 @@
         </div>
     </div>
 </div>
+</div>
 </body>
 </html>
+
+<script type="application/javascript">
+function createNewGame(gameName) {
+const name = "[[${userName}]]".split("=")[1];
+alert(name + " " + gameName);
+    const newGameDTO = {
+        gameName: gameName,
+        userNameHost: name
+    };
+
+    axios.post('/addNewGame', newGameDTO)
+        .then(response => {
+            console.log(response.data);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+</script>

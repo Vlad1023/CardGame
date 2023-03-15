@@ -1,9 +1,16 @@
 package com.example.cardgame.models;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@RedisHash("Game")
 public class Game {
+    @Id
+    private String id;
+    private String name;
     private List<String> currentPlayers;
 
     public void AddPlayer(String player){
@@ -14,8 +21,8 @@ public class Game {
         currentPlayers.remove(player);
     }
 
-    public Game() {
+    public Game(String name) {
         currentPlayers = new ArrayList<>();
-
+        this.name = name;
     }
 }
