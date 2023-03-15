@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 node_modules
 node
-.css
+src/resources/static/main.css
 
 ### STS ###
 .apt_generated
