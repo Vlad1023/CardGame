@@ -45,7 +45,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
-			<artifactId>webjars-locator-core</artifactId>
+			<artifactId>webjars-locator</artifactId>
+			<version>0.46</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -56,7 +57,25 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>alpinejs</artifactId>
+			<version>3.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>axios</artifactId>
+			<version>1.3.4</version>
+		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>webjars-npm</id>
+			<name>Webjars NPM</name>
+			<url>https://maven.webjars.org/webjars-npm</url>
+		</repository>
+	</repositories>
 
 
 	<build>
