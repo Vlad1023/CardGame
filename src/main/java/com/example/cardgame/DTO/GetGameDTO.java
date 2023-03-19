@@ -3,7 +3,7 @@ package com.example.cardgame.DTO;
 import lombok.Data;
 
 @Data
-public class NewGameDTO {
+public class GetGameDTO {
     private String gameName;
-    private String userNameHost;
+    private Integer usersCount;
 }
