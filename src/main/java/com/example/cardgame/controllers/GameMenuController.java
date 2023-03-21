@@ -7,15 +7,23 @@ import com.example.cardgame.repositories.GameRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RestController
 public class GameMenuController {
     @Autowired
     GameRepository gameRepository;
@@ -40,5 +48,21 @@ public class GameMenuController {
             getGamesDTO.add(gameDTO);
         }
         return mapper.writeValueAsString(getGamesDTO);
+    }
+
+
+    @GetMapping(value = "/activePendingGames")
+    @ResponseBody
+    public ResponseEntity<List<GetGameDTO>> GetAllActivePendingGames(){
+        List<Game> games = (List<Game>) gameRepository.findAll();
+        List<GetGameDTO> getGamesDTO = new ArrayList<GetGameDTO>();
+        for (Game game : games) {
+            GetGameDTO gameDTO = new GetGameDTO();
+            gameDTO.setGameId(game.getId());
+            gameDTO.setGameName(game.getName());
+            gameDTO.setUsersCount((int) game.getCurrentPlayers().stream().count());
+            getGamesDTO.add(gameDTO);
+        }
+        return new ResponseEntity<List<GetGameDTO>>(getGamesDTO, HttpStatus.OK);
     }
 }
