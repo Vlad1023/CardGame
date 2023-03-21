@@ -18,8 +18,8 @@
         <ul x-data="gamesList">
             <template x-for="game in gamesList">
                 <li class="mb-2">
-                    <a href="#" class="hover:underline">Game 1</a>
-                    <span class="text-gray-400"> (2/4)</span>
+                    <a x-text="game.gameName" href="#" class="hover:underline"></a>
+                    <span class="text-gray-400" x-text="'(' + game.usersCount + '/4)'"></span>
                 </li>
             </template>
         </ul>
