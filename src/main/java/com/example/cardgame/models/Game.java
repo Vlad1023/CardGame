@@ -15,13 +15,13 @@ public class Game {
     @Getter
     private String name;
     @Getter
-    private List<String> currentPlayers;
+    private List<User> currentPlayers;
 
-    public void AddPlayer(String player){
+    public void AddPlayer(User player){
         currentPlayers.add(player);
     }
 
-    public void RemovePlayer(String player){
+    public void RemovePlayer(User player){
         currentPlayers.remove(player);
     }
 

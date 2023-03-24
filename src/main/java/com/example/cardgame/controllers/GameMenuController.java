@@ -3,7 +3,9 @@ package com.example.cardgame.controllers;
 import com.example.cardgame.DTO.GetGameDTO;
 import com.example.cardgame.DTO.NewGameDTO;
 import com.example.cardgame.models.Game;
+import com.example.cardgame.models.User;
 import com.example.cardgame.repositories.GameRepository;
+import com.example.cardgame.repositories.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
@@ -22,12 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RestController
 public class GameMenuController {
     @Autowired
     GameRepository gameRepository;
+    @Autowired
+    UserRepository userRepository;
     @Autowired
     SimpMessagingTemplate messagingTemplate;
     @Autowired
@@ -39,8 +44,9 @@ public class GameMenuController {
     @MessageMapping("/addGame")
     @SendTo("/gamesInfo/gamesList")
     public String addGameToList(NewGameDTO DTO) throws JsonProcessingException {
+        Optional<User> gameHost = userRepository.findById(DTO.getUserId());
         Game newGame = new Game(DTO.getGameName());
-        newGame.AddPlayer(DTO.getUserNameHost());
+        newGame.AddPlayer(gameHost.get());
         gameRepository.save(newGame);
         List<Game> games = (List<Game>) gameRepository.findAll();
         List<GetGameDTO> getGamesDTO = new ArrayList<GetGameDTO>();

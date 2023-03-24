@@ -55,10 +55,10 @@ document.addEventListener('alpine:init', () => {
         stompClient: null,
         gamesList: [ { gameId: '', gameName: '', usersCount: 0 } ],
         createNewGame(gameName) {
-            const name = "[[${userName}]]".split("=")[1];
+            const userId = "[[${userId}]]";
             const newGameDTO = {
                 gameName: gameName,
-                userNameHost: name
+                userId: userId
             };
             this.stompClient.send("/games/addGame", {}, JSON.stringify(newGameDTO));
         },
