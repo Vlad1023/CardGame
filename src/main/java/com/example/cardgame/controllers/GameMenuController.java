@@ -6,6 +6,7 @@ import com.example.cardgame.models.Game;
 import com.example.cardgame.repositories.GameRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class GameMenuController {
     @Autowired
     ObjectMapper mapper;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @MessageMapping("/addGame")
     @SendTo("/gamesInfo/gamesList")
     public String addGameToList(NewGameDTO DTO) throws JsonProcessingException {
@@ -41,11 +45,7 @@ public class GameMenuController {
         List<Game> games = (List<Game>) gameRepository.findAll();
         List<GetGameDTO> getGamesDTO = new ArrayList<GetGameDTO>();
         for (Game game : games) {
-            GetGameDTO gameDTO = new GetGameDTO();
-            gameDTO.setGameId(game.getId());
-            gameDTO.setGameName(game.getName());
-            gameDTO.setUsersCount((int) game.getCurrentPlayers().stream().count());
-            getGamesDTO.add(gameDTO);
+            getGamesDTO.add(modelMapper.map(game, GetGameDTO.class));
         }
         return mapper.writeValueAsString(getGamesDTO);
     }
@@ -57,11 +57,7 @@ public class GameMenuController {
         List<Game> games = (List<Game>) gameRepository.findAll();
         List<GetGameDTO> getGamesDTO = new ArrayList<GetGameDTO>();
         for (Game game : games) {
-            GetGameDTO gameDTO = new GetGameDTO();
-            gameDTO.setGameId(game.getId());
-            gameDTO.setGameName(game.getName());
-            gameDTO.setUsersCount((int) game.getCurrentPlayers().stream().count());
-            getGamesDTO.add(gameDTO);
+            getGamesDTO.add(modelMapper.map(game, GetGameDTO.class));
         }
         return new ResponseEntity<List<GetGameDTO>>(getGamesDTO, HttpStatus.OK);
     }
