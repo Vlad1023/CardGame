@@ -2,6 +2,7 @@ package com.example.cardgame.controllers;
 
 import com.example.cardgame.DTO.GetGameDTO;
 import com.example.cardgame.DTO.NewGameDTO;
+import com.example.cardgame.configuration.RequiresSignIn;
 import com.example.cardgame.models.Game;
 import com.example.cardgame.models.User;
 import com.example.cardgame.repositories.GameRepository;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 @Controller
 @RestController
 public class GameMenuController {
@@ -43,6 +45,7 @@ public class GameMenuController {
 
     @MessageMapping("/addGame")
     @SendTo("/gamesInfo/gamesList")
+    @RequiresSignIn
     public String addGameToList(NewGameDTO DTO) throws JsonProcessingException {
         Optional<User> gameHost = userRepository.findById(DTO.getUserId());
         Game newGame = new Game(DTO.getGameName());
@@ -59,6 +62,7 @@ public class GameMenuController {
 
     @GetMapping(value = "/activePendingGames")
     @ResponseBody
+    @RequiresSignIn
     public ResponseEntity<List<GetGameDTO>> GetAllActivePendingGames(){
         List<Game> games = (List<Game>) gameRepository.findAll();
         List<GetGameDTO> getGamesDTO = new ArrayList<GetGameDTO>();

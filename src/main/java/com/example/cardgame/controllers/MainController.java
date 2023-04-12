@@ -1,6 +1,7 @@
 package com.example.cardgame.controllers;
 
 
+import com.example.cardgame.configuration.RequiresSignIn;
 import com.example.cardgame.models.User;
 import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
@@ -24,6 +25,7 @@ public class MainController {
 
         return "login";
     }
+    @RequiresSignIn
     @GetMapping(value = "/main")
     public String MainPage(@ModelAttribute("userId") String userId, Model model){
         model.addAttribute("userId", userId);
@@ -32,7 +34,13 @@ public class MainController {
     @PostMapping(value = "/addUser")
     public String AddUser(@RequestParam String name, HttpSession session, RedirectAttributes redirectAttributes){
         User newUser = new User(name);
+        String previousId = (String) session.getAttribute("userId");
+        if(previousId != null && userRepository.existsById(previousId))
+        {
+            userRepository.deleteById(previousId);
+        }
         userRepository.save(newUser);
+        session.setAttribute("userId", newUser.getId());
         redirectAttributes.addFlashAttribute("userId", newUser.getId());
         return "redirect:/main";
     }
