@@ -3,6 +3,7 @@ package com.example.cardgame.models;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class Game {
     @Getter
     private String name;
     @Getter
+    @Indexed
     private List<User> currentPlayers;
 
     public void AddPlayer(User player){
