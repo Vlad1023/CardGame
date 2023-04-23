@@ -46,15 +46,14 @@ public class GameMenuController {
     @SendTo("/gamesInfo/gamesList")
     @RequiresSignIn
     public String addGameToList(NewGameDTO DTO) throws JsonProcessingException {
-        //Optional<User> gameHost = userRepository.findById(DTO.getUserId());
         Game newGame = new Game(DTO.getGameName());
-        //newGame.AddPlayer(gameHost.get());
         gameRepository.save(newGame);
         List<Game> games = (List<Game>) gameRepository.findAll();
         List<GetGameDTO> getGamesDTO = new ArrayList<GetGameDTO>();
         for (Game game : games) {
             getGamesDTO.add(modelMapper.map(game, GetGameDTO.class));
         }
+        this.JoinGame(DTO.getUserId(), newGame.getId(), null);
         return mapper.writeValueAsString(getGamesDTO);
     }
 
@@ -74,7 +73,8 @@ public class GameMenuController {
     @RequiresSignIn
     @GetMapping(value = "/getGameWhereUserParticipate")
     public ResponseEntity<GetGameDTO> GetGameWhereUserParticipate(@ModelAttribute("userId") @UserIdConstraint String userId, Model model){
-        List<Game> gamesWhereUserParticipate = gameRepository.findByCurrentPlayersContains(userRepository.findById(userId).get());
+        User user = userRepository.findById(userId).get();
+        List<Game> gamesWhereUserParticipate = gameRepository.findByCurrentPlayersContains(user);
         if(gamesWhereUserParticipate.size() == 0){
             return new ResponseEntity<GetGameDTO>(HttpStatus.NOT_FOUND);
         }
@@ -87,12 +87,12 @@ public class GameMenuController {
     }
 
 
-    @RequestMapping(value = "/joinGame", method = RequestMethod.PUT)
+    @PutMapping(value = "/joinGame")
     public String JoinGame(@ModelAttribute("userId") @UserIdConstraint String userId, @ModelAttribute("gameId") @GameIdConstraint String gameId, Model model){
         var userToJoin = userRepository.findById(userId).get();
         var gameToJoin = gameRepository.findById(gameId).get();
         gameToJoin.AddPlayer(userToJoin);
         gameRepository.save(gameToJoin);
-        return "game";
+        return "redirect:/game/" + gameId + "?userId=" + userId;
     }
 }

@@ -60,7 +60,15 @@ document.addEventListener('alpine:init', () => {
                 gameName: gameName,
                 userId: userId
             };
+            let userGameId;
             this.stompClient.send("/games/addGame", {}, JSON.stringify(newGameDTO));
+            axios.get(`/getGameWhereUserParticipate?userId=${userId}`)
+            .then(response => response.data)
+            .then(result => {
+                userGameId = result.gameId;
+                alert(userGameId);
+                axios.get(`/game/${userGameId}?userId=${userId}`)
+            });
         },
         init() {
             this.connect();
