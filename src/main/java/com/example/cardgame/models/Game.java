@@ -6,7 +6,9 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RedisHash("Game")
 public class Game {
@@ -17,10 +19,10 @@ public class Game {
     private String name;
     @Getter
     @Indexed
-    private List<User> currentPlayers;
+    private Map<String, String> currentPlayers;
 
     public void AddPlayer(User player){
-        currentPlayers.add(player);
+        currentPlayers.put(player.getId(), player.getName());
     }
 
     public void RemovePlayer(User player){
@@ -28,7 +30,7 @@ public class Game {
     }
 
     public Game(String name) {
-        currentPlayers = new ArrayList<>();
+        currentPlayers = new HashMap<String, String>();
         this.name = name;
     }
 }

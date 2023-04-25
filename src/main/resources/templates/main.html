@@ -62,13 +62,9 @@ document.addEventListener('alpine:init', () => {
             };
             let userGameId;
             this.stompClient.send("/games/addGame", {}, JSON.stringify(newGameDTO));
-            axios.get(`/getGameWhereUserParticipate?userId=${userId}`)
-            .then(response => response.data)
-            .then(result => {
-                userGameId = result.gameId;
-                alert(userGameId);
-                axios.get(`/game/${userGameId}?userId=${userId}`)
-            });
+            alert("Game created successfully");
+            //userGameId  = "[[${userId}]]";
+            //window.location.href = `/game/${userGameId}?userId=${userId}`;
         },
         init() {
             this.connect();
@@ -84,7 +80,6 @@ document.addEventListener('alpine:init', () => {
             var socket = new SockJS('/cardGame-websocket');
             this.stompClient = Stomp.over(socket);
             this.stompClient.connect({}, (frame) => {
-                console.log('Connected: ' + frame);
                 this.stompClient.subscribe('/gamesInfo/gamesList', (gameListResponse) => {
                     let gamesListParsedResult = JSON.parse(gameListResponse.body);
                     this.gamesList = gamesListParsedResult;

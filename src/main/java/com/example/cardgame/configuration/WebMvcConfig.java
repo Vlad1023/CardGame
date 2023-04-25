@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -24,7 +25,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     mapper.map(Game::getId, GetGameDTO::setGameId);
                     mapper.map(Game::getName, GetGameDTO::setGameName);
                     mapper.using(ctx -> {
-                        List<String> players = (List<String>) ctx.getSource();
+                        Map<String, String> players = (Map<String, String>) ctx.getSource();
                         return players.size();
                     }).map(Game::getCurrentPlayers, GetGameDTO::setUsersCount);
                 });

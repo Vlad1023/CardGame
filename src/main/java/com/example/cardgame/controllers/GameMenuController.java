@@ -11,6 +11,7 @@ import com.example.cardgame.validators.GameIdConstraint;
 import com.example.cardgame.validators.UserIdConstraint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,15 +75,16 @@ public class GameMenuController {
     @GetMapping(value = "/getGameWhereUserParticipate")
     public ResponseEntity<GetGameDTO> GetGameWhereUserParticipate(@ModelAttribute("userId") @UserIdConstraint String userId, Model model){
         User user = userRepository.findById(userId).get();
-        List<Game> gamesWhereUserParticipate = gameRepository.findByCurrentPlayersContains(user);
-        if(gamesWhereUserParticipate.size() == 0){
+        List<Game> allGames = (List<Game>) gameRepository.findAll();
+        var foundGames = allGames.stream().filter(game -> game.getCurrentPlayers().containsKey(user.getId())).toList();
+        if(foundGames.size() == 0){
             return new ResponseEntity<GetGameDTO>(HttpStatus.NOT_FOUND);
         }
-        else if (gamesWhereUserParticipate.size() > 1){
+        else if(foundGames.size() > 1){
             return new ResponseEntity<GetGameDTO>(HttpStatus.CONFLICT);
         }
         else{
-            return new ResponseEntity<GetGameDTO>(modelMapper.map(gamesWhereUserParticipate.get(0), GetGameDTO.class), HttpStatus.OK);
+            return new ResponseEntity<GetGameDTO>(modelMapper.map(foundGames.get(0), GetGameDTO.class), HttpStatus.OK);
         }
     }
 

@@ -14,8 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RestController
-@RequestMapping
 public class GameProcessController {
 
     @Autowired
@@ -29,8 +27,10 @@ public class GameProcessController {
     private ModelMapper modelMapper;
 
     @RequiresSignIn
-    @RequestMapping(value = "/game/{gameId}", method = RequestMethod.GET)
+    @GetMapping(value = "/game/{gameId}")
     public String ProceedUserToGame(@PathVariable("gameId") @GameIdConstraint String gameId, @ModelAttribute("userId") @UserIdConstraint String userId, Model model) {
-        return "game";
+        var game = gameRepository.findById(gameId).get();
+        var user = userRepository.findById(userId).get();
+        return game.getCurrentPlayers().containsKey(user.getId()) ? "game" : "redirect:/main";
     }
 }
