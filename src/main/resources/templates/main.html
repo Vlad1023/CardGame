@@ -57,14 +57,39 @@ document.addEventListener('alpine:init', () => {
         createNewGame(gameName) {
             const userId = "[[${userId}]]";
             const newGameDTO = {
-                gameName: gameName,
-                userId: userId
+              gameName: gameName,
+              userId: userId
             };
             let userGameId;
-            this.stompClient.send("/games/addGame", {}, JSON.stringify(newGameDTO));
-            alert("Game created successfully");
-            //userGameId  = "[[${userId}]]";
-            //window.location.href = `/game/${userGameId}?userId=${userId}`;
+
+            const sendPromise = new Promise((resolve) => {
+              this.stompClient.send("/games/addGame", {}, JSON.stringify(newGameDTO));
+              resolve();
+            });
+
+            const subscribePromise = new Promise((resolve) => {
+              this.stompClient.subscribe('/gamesInfo/gamesList', (gameListResponse) => {
+                this.updateGamesList(gameListResponse);
+                resolve();
+              });
+            });
+
+            Promise.all([sendPromise, subscribePromise]).then(() => {
+              axios.get('/getGameWhereUserParticipate', {
+                  params: {
+                    userId: userId
+                  }
+                })
+                .then(response => {
+                  userGameId = response.data.gameId;
+                  window.location.href = `/game/${userGameId}`;
+                });
+            });
+        },
+        updateGamesList(gamesListResponse){
+            let gamesListParsedResult = JSON.parse(gamesListResponse.body);
+            this.gamesList = gamesListParsedResult;
+            alert("gameListUpdated");
         },
         init() {
             this.connect();
@@ -81,13 +106,11 @@ document.addEventListener('alpine:init', () => {
             this.stompClient = Stomp.over(socket);
             this.stompClient.connect({}, (frame) => {
                 this.stompClient.subscribe('/gamesInfo/gamesList', (gameListResponse) => {
-                    let gamesListParsedResult = JSON.parse(gameListResponse.body);
-                    this.gamesList = gamesListParsedResult;
+                    this.updateGamesList(gameListResponse);
                 });
-
             });
         }
-
     }))
-})
+});
 </script>
+

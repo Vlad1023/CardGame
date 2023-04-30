@@ -6,6 +6,7 @@ import com.example.cardgame.repositories.UserRepository;
 import com.example.cardgame.validators.GameIdConstraint;
 import com.example.cardgame.validators.UserIdConstraint;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -28,9 +29,9 @@ public class GameProcessController {
 
     @RequiresSignIn
     @GetMapping(value = "/game/{gameId}")
-    public String ProceedUserToGame(@PathVariable("gameId") @GameIdConstraint String gameId, @ModelAttribute("userId") @UserIdConstraint String userId, Model model) {
+    public String ProceedUserToGame(@PathVariable("gameId") @GameIdConstraint String gameId, HttpSession httpSession, Model model) {
         var game = gameRepository.findById(gameId).get();
-        var user = userRepository.findById(userId).get();
-        return game.getCurrentPlayers().containsKey(user.getId()) ? "game" : "redirect:/main";
+        var userId = httpSession.getAttribute("userId");
+        return game.getCurrentPlayers().containsKey(userId) ? "game" : "redirect:/main";
     }
 }
