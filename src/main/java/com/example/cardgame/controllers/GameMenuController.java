@@ -7,6 +7,7 @@ import com.example.cardgame.models.Game;
 import com.example.cardgame.models.User;
 import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
+import com.example.cardgame.services.GameService;
 import com.example.cardgame.validators.GameIdConstraint;
 import com.example.cardgame.validators.UserIdConstraint;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,6 +42,8 @@ public class GameMenuController {
     ObjectMapper mapper;
 
     @Autowired
+    private GameService gameService;
+    @Autowired
     private ModelMapper modelMapper;
 
     @MessageMapping("/addGame")
@@ -54,7 +57,7 @@ public class GameMenuController {
         for (Game game : games) {
             getGamesDTO.add(modelMapper.map(game, GetGameDTO.class));
         }
-        this.JoinGame(DTO.getUserId(), newGame.getId(), null);
+        gameService.JoinGame(DTO.getUserId(), newGame.getId());
         return mapper.writeValueAsString(getGamesDTO);
     }
 
@@ -86,15 +89,5 @@ public class GameMenuController {
         else{
             return new ResponseEntity<GetGameDTO>(modelMapper.map(foundGames.get(0), GetGameDTO.class), HttpStatus.OK);
         }
-    }
-
-
-    @PutMapping(value = "/joinGame")
-    public String JoinGame(@ModelAttribute("userId") @UserIdConstraint String userId, @ModelAttribute("gameId") @GameIdConstraint String gameId, Model model){
-        var userToJoin = userRepository.findById(userId).get();
-        var gameToJoin = gameRepository.findById(gameId).get();
-        gameToJoin.AddPlayer(userToJoin);
-        gameRepository.save(gameToJoin);
-        return "redirect:/game/" + gameId + "?userId=" + userId;
     }
 }
