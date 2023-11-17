@@ -23,4 +23,9 @@ public class GameService {
         gameToJoin.AddPlayer(userToJoin);
         gameRepository.save(gameToJoin);
     }
+
+    public void StartGame(@GameIdConstraint String gameId){
+        var game = gameRepository.findById(gameId).get();
+        game.setIsGameStarted(true);
+    }
 }

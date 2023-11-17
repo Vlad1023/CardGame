@@ -90,4 +90,18 @@ public class GameMenuController {
             return new ResponseEntity<GetGameDTO>(modelMapper.map(foundGames.get(0), GetGameDTO.class), HttpStatus.OK);
         }
     }
+
+    @RequiresSignIn
+    @PatchMapping(value = "/joinGame/{gameId}/{userId}")
+    public String joinToExistingGame(
+            @PathVariable("userId") @UserIdConstraint String userId,
+            @PathVariable("gameId") @GameIdConstraint String gameId) {
+
+        gameService.JoinGame(userId, gameId);
+        gameService.StartGame(gameId);
+
+        return "redirect:/game/" + gameId;
+    }
+
+
 }

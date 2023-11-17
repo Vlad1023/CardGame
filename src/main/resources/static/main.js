@@ -27,6 +27,10 @@ document.addEventListener('alpine:init', function () {
                     });
                 });
             },
+            joinGame: function (gameModel) {
+                let gameId = gameModel.gameId;
+                axios.patch(`/joinGame/${gameId}/${userId}`);
+            },
             updateGamesList: function (gamesListResponse) {
                 let gamesListParsedResult = JSON.parse(gamesListResponse.body);
                 this.gamesList = gamesListParsedResult;

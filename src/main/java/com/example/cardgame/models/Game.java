@@ -1,6 +1,7 @@
 package com.example.cardgame.models;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
@@ -17,6 +18,9 @@ public class Game {
     private String id;
     @Getter
     private String name;
+    @Setter
+    @Getter
+    private Boolean isGameStarted;
     @Getter
     @Indexed
     private Map<String, String> currentPlayers;
