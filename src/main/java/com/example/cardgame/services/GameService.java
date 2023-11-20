@@ -1,5 +1,6 @@
 package com.example.cardgame.services;
 
+import com.example.cardgame.models.Game;
 import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
 import com.example.cardgame.validators.GameIdConstraint;
@@ -17,11 +18,12 @@ public class GameService {
     UserRepository userRepository;
     @Autowired
     GameRepository gameRepository;
-    public void JoinGame(@UserIdConstraint String userId, @GameIdConstraint String gameId){
+    public Game JoinGame(@UserIdConstraint String userId, @GameIdConstraint String gameId){
         var userToJoin = userRepository.findById(userId).get();
         var gameToJoin = gameRepository.findById(gameId).get();
         gameToJoin.AddPlayer(userToJoin);
         gameRepository.save(gameToJoin);
+        return gameToJoin;
     }
 
     public void StartGame(@GameIdConstraint String gameId){

@@ -12,6 +12,7 @@ import com.example.cardgame.validators.GameIdConstraint;
 import com.example.cardgame.validators.UserIdConstraint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,19 +50,14 @@ public class GameMenuController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @MessageMapping("/addGame")
-    @SendTo("/gamesInfo/gamesList")
+    @PostMapping(value = "/addGame")
+    @ResponseBody
     @RequiresSignIn
-    public String addGameToList(NewGameDTO DTO) throws JsonProcessingException {
+    public ResponseEntity<GetGameDTO> AddGame(@RequestBody NewGameDTO DTO) throws JsonProcessingException {
         Game newGame = new Game(DTO.getGameName());
         gameRepository.save(newGame);
-        List<Game> games = (List<Game>) gameRepository.findAll();
-        List<GetGameDTO> getGamesDTO = new ArrayList<GetGameDTO>();
-        for (Game game : games) {
-            getGamesDTO.add(modelMapper.map(game, GetGameDTO.class));
-        }
-        gameService.JoinGame(DTO.getUserId(), newGame.getId());
-        return mapper.writeValueAsString(getGamesDTO);
+        this.notifyGamesList();
+        return new ResponseEntity<GetGameDTO>(modelMapper.map(newGame, GetGameDTO.class), HttpStatus.OK);
     }
 
 
@@ -93,15 +92,21 @@ public class GameMenuController {
 
     @RequiresSignIn
     @PatchMapping(value = "/joinGame/{gameId}/{userId}")
-    public String joinToExistingGame(
+    public ResponseEntity<GetGameDTO> joinToExistingGame(
             @PathVariable("userId") @UserIdConstraint String userId,
-            @PathVariable("gameId") @GameIdConstraint String gameId) {
-
-        gameService.JoinGame(userId, gameId);
-        gameService.StartGame(gameId);
-
-        return "redirect:/game/" + gameId;
+            @PathVariable("gameId") @GameIdConstraint String gameId,
+            HttpServletResponse response) throws IOException {
+        Game game = gameService.JoinGame(userId, gameId);
+        return new ResponseEntity<GetGameDTO>(modelMapper.map(game, GetGameDTO.class), HttpStatus.OK);
     }
 
 
+    private void notifyGamesList() throws JsonProcessingException {
+        List<Game> games = (List<Game>) gameRepository.findAll();
+        List<GetGameDTO> getGamesDTO = new ArrayList<>();
+        for (Game game : games) {
+            getGamesDTO.add(modelMapper.map(game, GetGameDTO.class));
+        }
+        messagingTemplate.convertAndSend("/gamesInfo/gamesList", mapper.writeValueAsString(getGamesDTO));
+    }
 }

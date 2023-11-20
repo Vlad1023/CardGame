@@ -29,7 +29,7 @@ public class GameProcessController {
 
     @RequiresSignIn
     @GetMapping(value = "/game/{gameId}")
-    public String ProceedUserToGame(@PathVariable("gameId") @GameIdConstraint String gameId, HttpSession httpSession, Model model) {
+    public String OpenGame(@PathVariable("gameId") @GameIdConstraint String gameId, HttpSession httpSession) {
         var game = gameRepository.findById(gameId).get();
         var userId = httpSession.getAttribute("userId");
         return game.getCurrentPlayers().containsKey(userId) ? "game" : "redirect:/main";
