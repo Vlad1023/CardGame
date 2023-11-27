@@ -28,10 +28,20 @@ public class GameProcessController {
     private ModelMapper modelMapper;
 
     @RequiresSignIn
+    @GetMapping(value = "/gameLobby/{gameId}")
+    public String OpenGameLobby(@PathVariable("gameId") @GameIdConstraint String gameId, HttpSession httpSession) {
+        var game = gameRepository.findById(gameId).get();
+        var userId = httpSession.getAttribute("userId");
+        httpSession.setAttribute("gameId", gameId);
+        return game.getCurrentPlayers().containsKey(userId) ? "gameLobby" : "redirect:/main";
+    }
+
+    @RequiresSignIn
     @GetMapping(value = "/game/{gameId}")
     public String OpenGame(@PathVariable("gameId") @GameIdConstraint String gameId, HttpSession httpSession) {
         var game = gameRepository.findById(gameId).get();
         var userId = httpSession.getAttribute("userId");
-        return game.getCurrentPlayers().containsKey(userId) ? "game" : "redirect:/main";
+        var isGameStarted = game.getIsGameStarted();
+        return (game.getCurrentPlayers().containsKey(userId) && isGameStarted) ? "game" : "redirect:/main";
     }
 }

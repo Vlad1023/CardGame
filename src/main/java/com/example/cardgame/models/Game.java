@@ -20,7 +20,7 @@ public class Game {
     private String name;
     @Setter
     @Getter
-    private Boolean isGameStarted;
+    private Boolean isGameStarted = false;
     @Getter
     @Indexed
     private Map<String, String> currentPlayers;

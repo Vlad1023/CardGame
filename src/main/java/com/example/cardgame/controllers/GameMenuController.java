@@ -107,6 +107,6 @@ public class GameMenuController {
         for (Game game : games) {
             getGamesDTO.add(modelMapper.map(game, GetGameDTO.class));
         }
-        messagingTemplate.convertAndSend("/gamesInfo/gamesList", mapper.writeValueAsString(getGamesDTO));
+        messagingTemplate.convertAndSend("/game/gamesList", mapper.writeValueAsString(getGamesDTO));
     }
 }

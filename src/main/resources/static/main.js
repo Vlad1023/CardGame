@@ -23,13 +23,19 @@ document.addEventListener('alpine:init', function () {
         return userGameId;
       },
 
+      joinGameClicked:  function (gameModel) {
+          axios.patch(`/joinGame/${gameModel.gameId}/${userId}`)
+              .then(this.handleJoinGameResponse.bind(this))
+              .catch(this.handleErrorResponse.bind(this));
+      },
+
       joinGame: function (userGameId) {
         return axios.patch(`/joinGame/${userGameId}/${userId}`);
       },
 
       handleJoinGameResponse: function (response) {
         let gameIdToJoin = response.data.gameId;
-        window.location.href = `/game/${gameIdToJoin}`;
+        window.location.href = response.data.isGameStarted ? `/game/${gameIdToJoin}` : `/gameLobby/${gameIdToJoin}`;
       },
 
       updateGamesList: function (gamesListResponse) {
@@ -56,7 +62,7 @@ document.addEventListener('alpine:init', function () {
         var socket = new SockJS('/cardGame-websocket');
         this.stompClient = Stomp.over(socket);
         this.stompClient.connect({}, (frame) => {
-          this.stompClient.subscribe('/gamesInfo/gamesList', (gameListResponse) => {
+          this.stompClient.subscribe('/game/gamesList', (gameListResponse) => {
             this.updateGamesList(gameListResponse);
           });
         });
