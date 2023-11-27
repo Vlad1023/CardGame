@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="header :: head"></head>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var gameId = /*[[${gameId}]]*/ '';
+    /*]]>*/
+</script>
 <script th:src="@{/game.js}"></script>
+<body>
+
+<div class="bg-blue-200 text-blue-800 p-4">
+  <p class="text-center">Game started</p>
+</div>
+
+</body>
 </html>

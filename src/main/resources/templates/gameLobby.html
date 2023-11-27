@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="header :: head"></head>
+
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var gameId = /*[[${gameId}]]*/ '';
+    /*]]>*/
+</script>
+
+<script type="module" th:src="@{/gameLobby.js}"></script>
+
+<body>
+    <div x-init="init()" x-data="gameLobbyComponent" class="flex flex-col h-screen">
+        <div class="bg-blue-200 text-blue-800 p-4">
+            <p class="text-center">Waiting for another player to join</p>
+        </div>
+
+
+        <div class="flex flex-1">
+
+            <div class="w-1/5">
+            </div>
+
+            <div class="w-3/5">
+                <canvas id="threeJs" style="width: 100%; height: 100%;"></canvas>
+            </div>
+
+            <div class="w-1/5">
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>
