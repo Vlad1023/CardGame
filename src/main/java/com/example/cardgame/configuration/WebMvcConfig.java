@@ -24,6 +24,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addMappings(mapper -> {
                     mapper.map(Game::getId, GetGameDTO::setGameId);
                     mapper.map(Game::getName, GetGameDTO::setGameName);
+                    mapper.map(Game::getIsGameStarted, GetGameDTO::setIsGameStarted);
                     mapper.using(ctx -> {
                         Map<String, String> players = (Map<String, String>) ctx.getSource();
                         return players.size();
