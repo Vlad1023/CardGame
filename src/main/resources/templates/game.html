@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="header :: head"></head>
+<script src="https://cdn.tailwindcss.com"></script>
 <script th:inline="javascript">
     /*<![CDATA[*/
     var gameId = /*[[${gameId}]]*/ '';
     /*]]>*/
 </script>
-<script th:src="@{/game.js}"></script>
+<script src="/dist/game.bundle.js" defer></script>
 <body>
 
 <div class="bg-blue-200 text-blue-800 p-4">
