@@ -1,5 +1,14 @@
 import * as THREE from 'three';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import startAlpine from './utils/alpine_start.js'
+import loadCardModel from "./utils/load_cardModel.js"
+
+document.addEventListener('DOMContentLoaded', function () {
+    startAlpine();
+});
 document.addEventListener('alpine:init', function () {
     Alpine.data('gameLobbyComponent', function () {
         return {
@@ -19,28 +28,49 @@ document.addEventListener('alpine:init', function () {
                 });
              },
 
-             initScene: function () {
-                const canvas = document.querySelector('#threeJs');
-                const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
-                renderer.setClearColor(0xffffff);
+            initScene: async function () {
+              const canvas = document.querySelector('#threeJs');
 
-                const fov = 75;
-                const aspect = 2;
-                const near = 0.1;
-                const far = 5;
-                const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-                camera.position.z = 2;
+              const fov = 75;
+              const aspect = canvas.clientWidth / canvas.clientHeight;
+              const near = 0.1;
+              const far = 1000;
+              const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-                const scene = new THREE.Scene();
+              const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+              renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 
-                const fbxLoader = new FBXLoader()
-                fbxLoader.load(
-                    'models/clubs2.fbx',
-                    (object) => {
-                        scene.add(object)
-                    }
-                )
-             }
+              const controls = new OrbitControls(camera, renderer.domElement);
+              camera.position.set(0, 0, 5);
+              controls.update();
+
+              const scene = new THREE.Scene();
+              scene.background = new THREE.Color(0xeeeeee);
+              scene.add(new THREE.AxesHelper(5))
+
+            try {
+              const loadedObject = await loadCardModel("clubs_2");
+              scene.add(loadedObject);
+            } catch (error) {
+              console.error('Error adding FBX model to scene: ' + error);
+            }
+
+              const ambientLight = new THREE.AmbientLight(0xcccccc, 5);
+              scene.add(ambientLight);
+
+              const pointLight = new THREE.PointLight(0xffffff, 3);
+              camera.add(pointLight);
+
+              // Animation loop
+              function animate() {
+                requestAnimationFrame(animate);
+
+                controls.update();
+
+                renderer.render(scene, camera);
+              }
+              animate();
+            }
         };
     });
 });
