@@ -1,3 +1,12 @@
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import axios from 'axios';
+import startAlpine from './utils/alpine_start.js'
+
+document.addEventListener('DOMContentLoaded', function () {
+    startAlpine();
+    console.log("hio");
+});
 document.addEventListener('alpine:init', function () {
   Alpine.data('gamesMenuComponent', function () {
     return {
