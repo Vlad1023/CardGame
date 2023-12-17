@@ -6,7 +6,6 @@ export default function loadFbxModel(modelName) {
     loader.load(
       `/models/${modelName}.fbx`,
       (obj) => {
-        obj.scale.setScalar(0.2);
         resolve(obj);
       },
       undefined,
