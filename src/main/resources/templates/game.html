@@ -11,6 +11,22 @@
 
 <div class="bg-blue-200 text-blue-800 p-4">
   <p class="text-center">Game started</p>
+
+  <div x-init="await init()" x-data="gameComponent" class="flex flex-col h-screen">
+
+
+    <div class="flex flex-1">
+
+      <div class="w-1/5">
+      </div>
+
+      <canvas id="threeJs"></canvas>
+
+      <div class="w-1/5">
+      </div>
+
+    </div>
+  </div>
 </div>
 
 </body>
