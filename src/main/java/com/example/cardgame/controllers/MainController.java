@@ -1,12 +1,17 @@
 package com.example.cardgame.controllers;
 
 
+import com.example.cardgame.DTO.GetGameDTO;
+import com.example.cardgame.DTO.GetUserDTO;
 import com.example.cardgame.configuration.RequiresSignIn;
 import com.example.cardgame.models.User;
 import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
 import jakarta.servlet.http.HttpSession;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +25,8 @@ import java.util.UUID;
 public class MainController {
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private ModelMapper modelMapper;
     @GetMapping(value = "/")
     public String Index(Model model){
 
@@ -43,5 +50,12 @@ public class MainController {
         session.setAttribute("userId", newUser.getId());
         redirectAttributes.addFlashAttribute("userId", newUser.getId());
         return "redirect:/main";
+    }
+
+    @GetMapping(value = "/getUser")
+    public ResponseEntity<GetUserDTO> GetCurrentUser(HttpSession session){
+        var userId = session.getAttribute("userId");
+        var foundUser = userRepository.findById(userId.toString()).get();
+        return new ResponseEntity<GetUserDTO>(modelMapper.map(foundUser, GetUserDTO.class), HttpStatus.OK);
     }
 }
