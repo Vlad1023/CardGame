@@ -1,6 +1,6 @@
 package com.example.cardgame.DTO;
 
-import com.example.cardgame.models.User;
+
 import lombok.Data;
 
 @Data
