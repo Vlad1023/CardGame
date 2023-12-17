@@ -1,5 +1,6 @@
 package com.example.cardgame.services;
 
+import com.example.cardgame.models.Card;
 import com.example.cardgame.models.Game;
 import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
@@ -26,6 +27,8 @@ public class GameService {
     @Autowired
     GameRepository gameRepository;
     @Autowired
+    GameProcessService gameProcessService;
+    @Autowired
     SimpMessagingTemplate messagingTemplate;
     @Autowired
     private ModelMapper modelMapper;
@@ -34,8 +37,10 @@ public class GameService {
 
     public Game JoinGame(@UserIdConstraint String userId, @GameIdConstraint String gameId) throws JsonProcessingException {
         Game gameToJoin = this.joinGameUtil(userId, gameId);
-        if(gameToJoin.getCurrentPlayers().size() == 2)
+        if(gameToJoin.getCurrentPlayers().size() == 2){
             gameToJoin = this.StartGame(gameId);
+        }
+        gameProcessService.CalculateInitialUserCards(userId, gameId);
         return gameToJoin;
     }
 
