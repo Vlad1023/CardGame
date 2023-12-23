@@ -1,6 +1,7 @@
 package com.example.cardgame.models;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
@@ -17,6 +18,13 @@ public class User {
     private String name;
     @Getter
     private LinkedList<Card> currentCards;
+    @Getter
+    @Setter
+    private Move currentMove;
+    @Getter
+    @Setter
+    private int currentScore;
+
 
     public User(String name) {
         this.name = name;
@@ -25,5 +33,11 @@ public class User {
 
     public void addCard(Card card) {
         currentCards.add(card);
+    }
+    public Card removeLastCard() {
+        if (!currentCards.isEmpty()) {
+            return currentCards.removeLast();
+        }
+        return null;
     }
 }

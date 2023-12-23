@@ -7,12 +7,17 @@ import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
 import com.example.cardgame.services.GameProcessService;
 import com.example.cardgame.validators.GameIdConstraint;
+import com.example.cardgame.validators.UserIdConstraint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +61,16 @@ public class GameProcessController {
     @GetMapping(value = "/game/getUserOpponentCards/{gameId}")
     public ResponseEntity<List<GetCardDTO>> GetUserOpponentCards(@PathVariable("gameId") @GameIdConstraint String gameId, HttpSession httpSession) {
         var userId = httpSession.getAttribute("userId").toString();
+        List<Card> opponentCards = gameProcessService.GetUserOpponnentCards(userId, gameId);
+        List<GetCardDTO> opponentCardsDTO
+                = modelMapper.map(opponentCards, new TypeToken<List<Card>>() {}.getType());
+        return ResponseEntity.ok(opponentCardsDTO);
+    }
+
+    @RequiresSignIn
+    @MessageMapping("/game/{gameId}/{userId}")
+    @SendTo("/game/{gameId}/{userId}")
+    public ResponseEntity<List<GetCardDTO>> MakeUsersMove(@DestinationVariable @GameIdConstraint String gameId, @DestinationVariable @UserIdConstraint String userId) {
         List<Card> opponentCards = gameProcessService.GetUserOpponnentCards(userId, gameId);
         List<GetCardDTO> opponentCardsDTO
                 = modelMapper.map(opponentCards, new TypeToken<List<Card>>() {}.getType());

@@ -1,7 +1,9 @@
 package com.example.cardgame.services;
 
+import com.example.cardgame.GameStatusAfterMove;
 import com.example.cardgame.models.Card;
 import com.example.cardgame.models.Game;
+import com.example.cardgame.models.Move;
 import com.example.cardgame.models.User;
 import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
@@ -56,5 +58,53 @@ public class GameProcessService {
 
         var opponentUser = userRepository.findById(opponent).get();
         return opponentUser.getCurrentCards();
+    }
+
+    public GameStatusAfterMove MakeUsersMove(@UserIdConstraint String userId, @GameIdConstraint String gameId){
+        var game = gameRepository.findById(gameId).get();
+        var user = userRepository.findById(userId).get(); // the user that made the move
+        var opponentUserId = game.getCurrentPlayers().entrySet().stream().filter(x -> !x.getKey().equals(user.getId())).findFirst().get().getKey();
+        var opponentUser = userRepository.findById(opponentUserId).get();
+
+        var statusToReturn = GameStatusAfterMove.PENDING_FOR_ALL_PLAYERS_TO_MOVE;
+
+
+        var userMove = user.getCurrentMove(); // move made by the user
+        var opponentCurrentMove = opponentUser.getCurrentMove(); // move made by the opponent
+        if(userMove != null && opponentCurrentMove != null){
+            var userCard = userMove.getCard();
+            var opponentCard = opponentCurrentMove.getCard();
+            var gameStatus = EvaluateMove(userCard, opponentCard);
+            if(gameStatus == GameStatusAfterMove.WIN){
+                user.setCurrentScore(user.getCurrentScore() + 1);
+            }
+            else if(gameStatus == GameStatusAfterMove.LOOSE){
+                opponentUser.setCurrentScore(opponentUser.getCurrentScore() + 1);
+            }
+            user.setCurrentMove(null);
+            opponentUser.setCurrentMove(null);
+            statusToReturn = gameStatus;
+        }
+        else if(userMove == null){
+            var playedCard = user.removeLastCard();
+            user.setCurrentMove(new Move(playedCard));
+        }
+
+
+        return statusToReturn;
+    }
+
+    private GameStatusAfterMove EvaluateMove(Card userCard, Card opponentCard){
+        var userCardRank = userCard.getRank();
+        var opponentCardRank = opponentCard.getRank();
+        if(userCardRank > opponentCardRank){
+            return GameStatusAfterMove.WIN;
+        }
+        else if(userCardRank < opponentCardRank){
+            return GameStatusAfterMove.LOOSE;
+        }
+        else{
+            return GameStatusAfterMove.DRAW;
+        }
     }
 }

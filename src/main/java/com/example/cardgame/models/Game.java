@@ -1,5 +1,6 @@
 package com.example.cardgame.models;
 
+import com.example.cardgame.GameStatusAfterMove;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -24,6 +25,9 @@ public class Game {
 
     @Getter
     private List<Card> gameDeck;
+    @Getter
+    @Setter
+    private GameStatusAfterMove gameStatus = GameStatusAfterMove.PENDING_FOR_ALL_PLAYERS_TO_MOVE;
 
     public void AddPlayer(User player) {
         currentPlayers.put(player.getId(), player.getName());

@@ -97,6 +97,7 @@ public class GameMenuController {
             @PathVariable("gameId") @GameIdConstraint String gameId,
             HttpServletResponse response) throws IOException {
         Game game = gameService.JoinGame(userId, gameId);
+        this.notifyGamesList();
         return new ResponseEntity<GetGameDTO>(modelMapper.map(game, GetGameDTO.class), HttpStatus.OK);
     }
 
