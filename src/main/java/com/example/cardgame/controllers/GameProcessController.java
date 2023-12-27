@@ -1,6 +1,7 @@
 package com.example.cardgame.controllers;
 
 import com.example.cardgame.DTO.GetCardDTO;
+import com.example.cardgame.GameStatusAfterMove;
 import com.example.cardgame.configuration.RequiresSignIn;
 import com.example.cardgame.models.Card;
 import com.example.cardgame.repositories.GameRepository;
@@ -70,10 +71,7 @@ public class GameProcessController {
     @RequiresSignIn
     @MessageMapping("/game/{gameId}/{userId}")
     @SendTo("/game/{gameId}/{userId}")
-    public ResponseEntity<List<GetCardDTO>> MakeUsersMove(@DestinationVariable @GameIdConstraint String gameId, @DestinationVariable @UserIdConstraint String userId) {
-        List<Card> opponentCards = gameProcessService.GetUserOpponnentCards(userId, gameId);
-        List<GetCardDTO> opponentCardsDTO
-                = modelMapper.map(opponentCards, new TypeToken<List<Card>>() {}.getType());
-        return ResponseEntity.ok(opponentCardsDTO);
+    public GameStatusAfterMove MakeUsersMove(@DestinationVariable @GameIdConstraint String gameId, @DestinationVariable @UserIdConstraint String userId) {
+        return gameProcessService.MakeUsersMove(userId, gameId);
     }
 }
