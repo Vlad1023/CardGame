@@ -1,5 +1,6 @@
 package com.example.cardgame.models;
 
+import com.example.cardgame.GameStatusAfterMove;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -23,7 +24,10 @@ public class User {
     private Move currentMove;
     @Getter
     @Setter
-    private int currentScore;
+    private GameStatusAfterMove gameStatusAfterLastMove;
+    @Getter
+    @Setter
+    private int currentScore = 29;
 
 
     public User(String name) {

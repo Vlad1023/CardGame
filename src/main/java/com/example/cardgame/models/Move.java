@@ -1,5 +1,6 @@
 package com.example.cardgame.models;
 
+import com.example.cardgame.GameStatusAfterMove;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;

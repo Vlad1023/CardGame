@@ -77,12 +77,19 @@ public class GameProcessService {
             var gameStatus = EvaluateMove(userCard, opponentCard);
             if(gameStatus == GameStatusAfterMove.WIN){
                 user.setCurrentScore(user.getCurrentScore() + 1);
+                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
+                    user.setCurrentScore(user.getCurrentScore() + 1);
+                }
             }
             else if(gameStatus == GameStatusAfterMove.LOOSE){
-                opponentUser.setCurrentScore(opponentUser.getCurrentScore() + 1);
+                opponentUser.setCurrentScore(opponentUser.getCurrentScore() - 1);
+                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
+                    user.setCurrentScore(user.getCurrentScore() - 1);
+                }
             }
             user.setCurrentMove(null);
             opponentUser.setCurrentMove(null);
+            user.setGameStatusAfterLastMove(gameStatus);
             statusToReturn = gameStatus;
         }
         else if(userMove == null){
