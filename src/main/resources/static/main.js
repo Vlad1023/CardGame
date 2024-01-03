@@ -5,7 +5,6 @@ import startAlpine from './utils/alpine_start.js'
 
 document.addEventListener('DOMContentLoaded', function () {
     startAlpine();
-    console.log("hio");
 });
 document.addEventListener('alpine:init', function () {
   Alpine.data('gamesMenuComponent', function () {
@@ -52,7 +51,7 @@ document.addEventListener('alpine:init', function () {
         this.gamesList = gamesListParsedResult;
       },
 
-      init: function () {
+      initFunc: function () {
         this.connect();
         this.getAllActivePendingGames();
       },

@@ -27,6 +27,8 @@ public class GameProcessService {
     @Autowired
     GameRepository gameRepository;
     @Autowired
+    UserService userService;
+    @Autowired
     SimpMessagingTemplate messagingTemplate;
     @Autowired
     private ModelMapper modelMapper;
@@ -51,19 +53,11 @@ public class GameProcessService {
         return user;
     }
 
-    public List<Card> GetUserOpponnentCards(@UserIdConstraint String userId, @GameIdConstraint String gameId){
-        var game = gameRepository.findById(gameId).get();
-        var user = userRepository.findById(userId).get();
-        var opponent = game.getCurrentPlayers().entrySet().stream().filter(x -> !x.getKey().equals(user.getId())).findFirst().get().getKey();
-
-        var opponentUser = userRepository.findById(opponent).get();
-        return opponentUser.getCurrentCards();
-    }
 
     public GameStatusAfterMove MakeUsersMove(@UserIdConstraint String userId, @GameIdConstraint String gameId){
         var game = gameRepository.findById(gameId).get();
         var user = userRepository.findById(userId).get(); // the user that made the move
-        var opponentUserId = game.getCurrentPlayers().entrySet().stream().filter(x -> !x.getKey().equals(user.getId())).findFirst().get().getKey();
+        var opponentUserId = userService.GetUserOpponentId(game, user);
         var opponentUser = userRepository.findById(opponentUserId).get();
 
         var statusToReturn = GameStatusAfterMove.PENDING_FOR_ALL_PLAYERS_TO_MOVE;
@@ -71,32 +65,63 @@ public class GameProcessService {
 
         var userMove = user.getCurrentMove(); // move made by the user
         var opponentCurrentMove = opponentUser.getCurrentMove(); // move made by the opponent
-        if(userMove != null && opponentCurrentMove != null){
-            var userCard = userMove.getCard();
-            var opponentCard = opponentCurrentMove.getCard();
-            var gameStatus = EvaluateMove(userCard, opponentCard);
-            if(gameStatus == GameStatusAfterMove.WIN){
-                user.setCurrentScore(user.getCurrentScore() + 1);
-                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
-                    user.setCurrentScore(user.getCurrentScore() + 1);
-                }
-            }
-            else if(gameStatus == GameStatusAfterMove.LOOSE){
-                opponentUser.setCurrentScore(opponentUser.getCurrentScore() - 1);
-                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
-                    user.setCurrentScore(user.getCurrentScore() - 1);
-                }
-            }
-            user.setCurrentMove(null);
-            opponentUser.setCurrentMove(null);
-            user.setGameStatusAfterLastMove(gameStatus);
-            statusToReturn = gameStatus;
-        }
-        else if(userMove == null){
-            var playedCard = user.removeLastCard();
-            user.setCurrentMove(new Move(playedCard));
-        }
+//        if(userMove != null && opponentCurrentMove != null){
+//            var userCard = userMove.getCard();
+//            var opponentCard = opponentCurrentMove.getCard();
+//            var gameStatus = EvaluateMove(userCard, opponentCard);
+//            if(gameStatus == GameStatusAfterMove.WIN){
+//                user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() + 1);
+//                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
+//                    user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() + 1);
+//                }
+//            }
+//            else if(gameStatus == GameStatusAfterMove.LOOSE){
+//                opponentUser.setCurrentNumberOfCards(opponentUser.getCurrentNumberOfCards() - 1);
+//                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
+//                    user.setCurrentNumberOfCards(user.getCurrentNumberOfCards  () - 1);
+//                }
+//            }
+//            user.setCurrentMove(null);
+//            opponentUser.setCurrentMove(null);
+//            user.setGameStatusAfterLastMove(gameStatus);
+//            statusToReturn = gameStatus;
+//        }
+        if(userMove == null){
+            var userCard = user.removeFirstCard();
+            user.setCurrentMove(new Move(userCard));
 
+            if(opponentCurrentMove != null){
+                var opponentCard = opponentCurrentMove.getCard();
+                var gameStatus = EvaluateMove(userCard, opponentCard);
+                if(gameStatus == GameStatusAfterMove.WIN){
+                    user.addCard(userCard);
+                    user.addCard(opponentCard);
+                    if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
+//                        user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() + 1);
+                    }
+                    user.setGameStatusAfterLastMove(GameStatusAfterMove.WIN);
+                    opponentUser.setGameStatusAfterLastMove(GameStatusAfterMove.LOOSE);
+                }
+                else if(gameStatus == GameStatusAfterMove.LOOSE){
+                    opponentUser.addCard(userCard);
+                    opponentUser.addCard(opponentCard);
+                    if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
+//                        user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() - 1);
+                    }
+                    user.setGameStatusAfterLastMove(GameStatusAfterMove.LOOSE);
+                    opponentUser.setGameStatusAfterLastMove(GameStatusAfterMove.WIN);
+                }
+                else if(gameStatus == GameStatusAfterMove.DRAW){
+                    user.setGameStatusAfterLastMove(GameStatusAfterMove.DRAW);
+                    opponentUser.setGameStatusAfterLastMove(GameStatusAfterMove.DRAW);
+                }
+                user.setCurrentMove(null);
+                opponentUser.setCurrentMove(null);
+                statusToReturn = gameStatus;
+            }
+        }
+        userRepository.save(user);
+        userRepository.save(opponentUser);
 
         return statusToReturn;
     }

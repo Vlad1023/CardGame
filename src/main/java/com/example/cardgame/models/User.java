@@ -25,9 +25,9 @@ public class User {
     @Getter
     @Setter
     private GameStatusAfterMove gameStatusAfterLastMove;
-    @Getter
-    @Setter
-    private int currentScore = 29;
+    public int getCurrentNumberOfCards() {
+        return currentCards.size();
+    }
 
 
     public User(String name) {
@@ -38,9 +38,9 @@ public class User {
     public void addCard(Card card) {
         currentCards.add(card);
     }
-    public Card removeLastCard() {
+    public Card removeFirstCard() {
         if (!currentCards.isEmpty()) {
-            return currentCards.removeLast();
+            return currentCards.removeFirst();
         }
         return null;
     }

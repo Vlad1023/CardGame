@@ -12,7 +12,7 @@
 <script src="/dist/gameLobby.bundle.js" defer></script>
 
 <body>
-    <div x-init="await init()" x-data="gameLobbyComponent" class="flex flex-col h-screen">
+    <div x-init="await initFunc()" x-data="gameLobbyComponent" class="flex flex-col h-screen">
         <div class="bg-blue-200 text-blue-800 p-4">
             <p class="text-center">Waiting for another player to join</p>
         </div>
