@@ -1,45 +1,44 @@
-export function positionBottom(models) {
-  const offsetXStart = -3;
-  const offsetZStart = 0.0;
-  const offsetXChange = 0.02;
-  const offsetZChange = -0.03;
-  const bottomOffset = -2.2;
-  let accOffsetX = offsetXStart;
-  let accOffsetZ = offsetZStart;
-  models.forEach((model, index) => {
-    const roundedOffsetX = roundToPrecision(accOffsetX, 4);
-    const roundedOffsetZ = roundToPrecision(accOffsetZ, 4);
+// position_cards.js
 
-    model.position.set(roundedOffsetX, bottomOffset, roundedOffsetZ);
+class CardPositionManagement {
+    constructor(offsetXStart, offsetZStart, offsetXChange, offsetZChange, bottomOffset) {
+        this.offsetXStart = offsetXStart;
+        this.offsetZStart = offsetZStart;
+        this.offsetXChange = offsetXChange;
+        this.offsetZChange = offsetZChange;
+        this.bottomOffset = bottomOffset;
+        this.accOffsetX = 0;
+        this.accOffsetZ = 0;
+    }
 
+    positionCards(models) {
+        this.accOffsetX = this.offsetXStart;
+        this.accOffsetZ = this.offsetZStart;
 
-    accOffsetX += offsetXChange;
-    accOffsetZ += offsetZChange;
-  });
+        models.forEach((model) => {
+            const roundedOffsetX = roundToPrecision(this.accOffsetX, 4);
+            const roundedOffsetZ = roundToPrecision(this.accOffsetZ, 4);
+
+            model.position.set(roundedOffsetX, this.bottomOffset, roundedOffsetZ);
+
+            this.accOffsetX += this.offsetXChange;
+            this.accOffsetZ += this.offsetZChange;
+        });
+    }
+
+    placeCardInTheEnd(card) {
+        card.position.set(this.accOffsetX, this.bottomOffset, this.accOffsetZ);
+        this.accOffsetX += this.offsetXChange;
+        this.accOffsetZ += this.offsetZChange;
+    }
 }
 
-export function positionTop(models) {
-  const offsetXStart = 5.5;
-  const offsetZStart = 0.0;
-  const offsetXChange = 0.02;
-  const offsetZChange = -0.03;
-  const bottomOffset = 2.5;
-  let accOffsetX = offsetXStart;
-  let accOffsetZ = offsetZStart;
-  models.forEach((model, index) => {
-    const roundedOffsetX = roundToPrecision(accOffsetX, 4);
-    const roundedOffsetZ = roundToPrecision(accOffsetZ, 4);
-
-    model.position.set(roundedOffsetX, bottomOffset, roundedOffsetZ);
-
-
-    accOffsetX += offsetXChange;
-    accOffsetZ += offsetZChange;
-  });
-}
-
+const cardPlayerPositionManagement = new CardPositionManagement(-3, 0.0, 0.02, -0.03, -2.2);
+const cardOpponentPositionManagement = new CardPositionManagement(5.5, 0.0, 0.02, -0.03, 2.5);
 
 function roundToPrecision(number, precision) {
-  const factor = Math.pow(10, precision);
-  return Math.round(number * factor) / factor;
+    const factor = Math.pow(10, precision);
+    return Math.round(number * factor) / factor;
 }
+
+export { cardPlayerPositionManagement, cardOpponentPositionManagement };
