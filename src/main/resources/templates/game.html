@@ -12,7 +12,7 @@
 <div class="bg-blue-200 text-blue-800 p-4">
   <p class="text-center">Game started</p>
 
-  <div x-init="await init()" x-data="gameComponent" class="flex flex-col h-screen">
+  <div x-init="await initFunc()" x-data="gameComponent" class="flex flex-col h-screen">
 
 
     <div class="flex flex-1">
@@ -22,9 +22,11 @@
         <div class="h-1/5">
           <div class="mb-4">
             <p class="font-bold text-lg">Score:</p>
-            <p class="text-lg" x-text="user.score"></p>
+            <p class="text-lg" x-text="userScore"></p>
           </div>
-          <button class="bg-green-500 text-white py-3 px-20 rounded"><p class="text-lg">Move</p></button>
+          <button x-on:click="userMove" class="bg-green-500 text-white py-3 px-20 rounded">
+            <p class="text-lg">Move</p>
+          </button>
         </div>
       </div>
 
@@ -34,7 +36,7 @@
         <div class="h-1/5 ml-5">
           <div class="mb-4">
             <p class="font-bold text-lg">Score:</p>
-            <p class="text-lg" x-text="opponent.score"></p>
+            <p class="text-lg" x-text="opponentScore"></p>
           </div>
         </div>
       </div>

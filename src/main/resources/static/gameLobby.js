@@ -6,7 +6,7 @@ import axios from 'axios';
 import Stomp from 'stompjs';
 import startAlpine from './utils/alpine_start.js';
 import loadCardModel from "./utils/load_cardModel.js";
-import {positionBottom} from "./utils/position_cards.js";
+import {cardPlayerPositionManagement} from "./utils/position_cards.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     startAlpine();
@@ -17,7 +17,7 @@ document.addEventListener('alpine:init', function () {
         return {
             stompClient: null,
             user: null,
-            init: async function () {
+            initFunc: async function () {
                 this.connect();
                 await this.initScene();
             },
@@ -69,7 +69,8 @@ document.addEventListener('alpine:init', function () {
                         scene.add(loadedObject);
                         cardsList.push(loadedObject);
                     }
-                    positionBottom(cardsList);
+                    cardPlayerPositionManagement.positionCards(cardsList);
+
                 } catch (error) {
                     console.error('Error adding FBX models to scene: ' + error);
                 }
