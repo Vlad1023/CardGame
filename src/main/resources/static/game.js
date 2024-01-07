@@ -7,7 +7,7 @@ import axios from 'axios';
 import Stomp from 'stompjs';
 import startAlpine from './utils/alpine_start.js';
 import loadCardModel from "./utils/load_cardModel.js";
-import {cardPlayerPositionManagement, cardOpponentPositionManagement} from "./utils/position_cards.js";
+import {cardPlayerPositionManagement, cardOpponentPositionManagement, tweenCardMovementAndRotation, initCardDisplayment} from "./utils/position_cards.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     startAlpine();
@@ -39,48 +39,37 @@ document.addEventListener('alpine:init', function () {
                 this.opponentName = response.data.name;
             },
             userMove: function () {
-                const nextCardObject = this.userCardObjectsList.shift();
-                if (nextCardObject) {
-                    this.currentUserPlayedCard = nextCardObject;
-                    const targetPosition = new THREE.Vector3(-1.5, 0, 0);
-                    new TWEEN.Tween(nextCardObject.position)
-                        .to(targetPosition, 1000)
-                        .start();
-
-                    // Rotate the last card 180 degrees
-                    new TWEEN.Tween(nextCardObject.rotation)
-                        .to({ y: nextCardObject.rotation.y + Math.PI }, 1000)
-                        .start();
-                }
-
-                this.currentUserPlayedCard = nextCardObject;
-
-                axios.post(`/game/makeUserMove/${gameId}`)
-                    .then(response => {
-                        console.log("Current status = " + response.data);
-                    })
-                    .catch(error => {
-                        console.error('Error making user move:', error);
-                });
-
+              const nextCardObject = this.userCardObjectsList.shift();
+              if (nextCardObject) {
+                  const targetPosition = new THREE.Vector3(-0.6, 0, 0);
+                  tweenCardMovementAndRotation(nextCardObject, targetPosition)
+                  .then(() => {
+                      this.currentUserPlayedCard = nextCardObject;
+                      this.makeUserMoveRequest();
+                  });
+              }
             },
+
+            makeUserMoveRequest: function () {
+              axios.post(`/game/makeUserMove/${gameId}`)
+                  .then(response => {
+                      console.log("Current status = " + response.data);
+                  })
+                  .catch(error => {
+                      console.error('Error making user move:', error);
+                  });
+            },
+
             opponentMove: function () {
-                const nextCardObject = this.opponentCardObjectsList.shift();
+              const nextCardObject = this.opponentCardObjectsList.shift();
 
-                if (nextCardObject) {
-                    this.currentOpponentPlayedCard = nextCardObject;
-                    const targetPosition = new THREE.Vector3(1.5, 0, 0);
-                    new TWEEN.Tween(nextCardObject.position)
-                        .to(targetPosition, 1000)
-                        .start();
-
-                    // Rotate the last card 180 degrees
-                    new TWEEN.Tween(nextCardObject.rotation)
-                        .to({ y: nextCardObject.rotation.y + Math.PI }, 1000)
-                        .start();
-                }
-                this.currentOpponentPlayedCard = nextCardObject;
-
+              if (nextCardObject) {
+                  const targetPosition = new THREE.Vector3(0.8, 0, 0);
+                  tweenCardMovementAndRotation(nextCardObject, targetPosition)
+                  .then(() => {
+                      this.currentOpponentPlayedCard = nextCardObject;
+                  });
+              }
             },
 
             connect: function () {
@@ -93,15 +82,35 @@ document.addEventListener('alpine:init', function () {
                 });
             },
 
+            resetTheCurrentPlayedCards: function () {
+                this.currentUserPlayedCard = null;
+                this.currentOpponentPlayedCard = null;
+            },
+
+            putAllCardsInUserDeck: function () {
+                this.userCardObjectsList.push(this.currentUserPlayedCard);
+                this.userCardObjectsList.push(this.currentOpponentPlayedCard);
+            },
+            putAllCardsInOpponentDeck: function () {
+                this.opponentCardObjectsList.push(this.currentUserPlayedCard);
+                this.opponentCardObjectsList.push(this.currentOpponentPlayedCard);
+            },
+
             evaluateStatusOfGameAfterOpponentMove: function (opponentStatus) {
                 this.opponentMove();
                 if(opponentStatus.body.includes("LOOSE")) { // means that current user won
-                    cardPlayerPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard);
-                    cardPlayerPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard);
+                    this.putAllCardsInUserDeck();
+                    cardPlayerPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard)
+                        .then(
+                            () =>
+                                cardPlayerPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard));
                 }
                 else if(opponentStatus.body.includes("WIN")) { // means that current user lost
-                    cardOpponentPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard);
-                    cardOpponentPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard);
+                    this.putAllCardsInOpponentDeck();
+                    cardOpponentPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard)
+                        .then(
+                            () =>
+                                cardOpponentPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard));
                 }
             },
 
@@ -130,23 +139,22 @@ document.addEventListener('alpine:init', function () {
                 scene.add(new THREE.AxesHelper(1));
 
                 try {
+                    const scale = 0.2;
                     for (const card of this.user.currentCards) {
                         console.log("User cards: " + card.representation);
-                        const loadedObject = await loadCardModel(card.representation);
-                        loadedObject.position.set(0, 0, 0);
-                        loadedObject.scale.set(0.20, 0.20, 0.20);
-                        scene.add(loadedObject);
-                        this.userCardObjectsList.push(loadedObject);
+                        const object = await loadCardModel(card.representation);
+                        initCardDisplayment(object);
+                        scene.add(object);
+                        this.userCardObjectsList.push(object);
                     }
                     cardPlayerPositionManagement.positionCards(this.userCardObjectsList);
 
                     for (const card of this.opponentCards) {
                         console.log("Opponent cards: " + card.representation);
-                        const loadedObject = await loadCardModel(card.representation);
-                        loadedObject.position.set(0, 0, 0);
-                        loadedObject.scale.set(0.20, 0.20, 0.20);
-                        scene.add(loadedObject);
-                        this.opponentCardObjectsList.push(loadedObject);
+                        const object = await loadCardModel(card.representation);
+                        initCardDisplayment(object);
+                        scene.add(object);
+                        this.opponentCardObjectsList.push(object);
                     }
                     cardOpponentPositionManagement.positionCards(this.opponentCardObjectsList);
 
