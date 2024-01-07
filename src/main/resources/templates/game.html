@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script th:inline="javascript">
-    /*<![CDATA[*/
-    var gameId = /*[[${gameId}]]*/ '';
-    /*]]>*/
+  /*<![CDATA[*/
+  var gameId = /*[[${gameId}]]*/ '';
+  /*]]>*/
 </script>
 <script src="/dist/game.bundle.js" defer></script>
+
 <body>
 
 <div class="bg-blue-200 text-blue-800 p-4">
@@ -14,15 +16,16 @@
 
   <div x-init="await initFunc()" x-data="gameComponent" class="flex flex-col h-screen">
 
-
     <div class="flex flex-1">
 
       <div class="w-1/5 flex flex-col">
-        <div class="h-4/5"></div>
-        <div class="h-1/5">
+        <div class="h-3/5"></div>
+        <div class="h-2/5">
           <div class="mb-4">
+            <p class="font-bold text-lg">Username:</p>
+            <p class="text-lg" x-text="user.name"></p>
             <p class="font-bold text-lg">Score:</p>
-            <p class="text-lg" x-text="userScore"></p>
+            <p class="text-lg" x-text="userCardObjectsList.length"></p>
           </div>
           <button x-on:click="userMove" class="bg-green-500 text-white py-3 px-20 rounded">
             <p class="text-lg">Move</p>
@@ -35,8 +38,10 @@
       <div class="w-1/5 flex flex-col">
         <div class="h-1/5 ml-5">
           <div class="mb-4">
+            <p class="font-bold text-lg">Username:</p>
+            <p class="text-lg" x-text="opponentName"></p>
             <p class="font-bold text-lg">Score:</p>
-            <p class="text-lg" x-text="opponentScore"></p>
+            <p class="text-lg" x-text="opponentCardObjectsList.length"></p>
           </div>
         </div>
       </div>
@@ -46,4 +51,5 @@
 </div>
 
 </body>
+
 </html>
