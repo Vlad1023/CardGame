@@ -80,7 +80,7 @@ public class GameProcessController {
         List<Card> opponentCards = foundUser.getCurrentCards();
         List<GetCardDTO> opponentCardsDTO
                 = modelMapper.map(opponentCards, new TypeToken<List<Card>>() {}.getType());
-        return ResponseEntity.ok(new GetUserOpponentDTO(foundUser.getName(), opponentCardsDTO));
+        return ResponseEntity.ok(new GetUserOpponentDTO(foundUser.getName(), foundUser.getCurrentVictories(), opponentCardsDTO));
     }
 
     @RequiresSignIn
@@ -97,6 +97,7 @@ public class GameProcessController {
     }
 
     private void notifyUserThatOpponentMadeAMove(String opponentUserId, GameStatusAfterMove gameStatusAfterMove) throws JsonProcessingException {
-        messagingTemplate.convertAndSend("/game/opponentMadeMove/" + opponentUserId, gameStatusAfterMove);
+        var destination = "/game/opponentMadeMove";
+        messagingTemplate.convertAndSendToUser(opponentUserId, destination, gameStatusAfterMove);
     }
 }

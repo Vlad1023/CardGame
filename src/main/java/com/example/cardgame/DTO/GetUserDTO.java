@@ -8,5 +8,6 @@ import java.util.List;
 public class GetUserDTO {
     private String userId;
     private String name;
+    private int currentVictories;
     private List<GetCardDTO> currentCards;
 }

@@ -6,7 +6,7 @@ import axios from 'axios';
 import Stomp from 'stompjs';
 import startAlpine from './utils/alpine_start.js';
 import loadCardModel from "./utils/load_cardModel.js";
-import {cardPlayerPositionManagement} from "./utils/position_cards.js";
+import {cardPlayerPositionManagement, initCardDisplayment} from "./utils/position_cards.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     startAlpine();
@@ -61,13 +61,12 @@ document.addEventListener('alpine:init', function () {
                 scene.add(new THREE.AxesHelper(1));
 
                 try {
-                    const cardsList = [];
+                    const cardsList = []
                     for (const card of this.user.currentCards) {
-                        const loadedObject = await loadCardModel(card.representation);
-                        loadedObject.position.set(0, 0, 0);
-                        loadedObject.scale.set(0.25, 0.25, 0.25);
-                        scene.add(loadedObject);
-                        cardsList.push(loadedObject);
+                        const object = await loadCardModel(card.representation);
+                        initCardDisplayment(object);
+                        scene.add(object);
+                        cardsList.push(object);
                     }
                     cardPlayerPositionManagement.positionCards(cardsList);
 

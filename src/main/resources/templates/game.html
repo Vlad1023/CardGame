@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ladda-bootstrap/0.9.4/ladda-themeless.min.css"
+</head>
 <script src="https://cdn.tailwindcss.com"></script>
 <script th:inline="javascript">
   /*<![CDATA[*/
   var gameId = /*[[${gameId}]]*/ '';
   /*]]>*/
 </script>
-<script src="/dist/game.bundle.js" defer></script>
 
 <body>
 
@@ -24,10 +26,14 @@
           <div class="mb-4">
             <p class="font-bold text-lg">Username:</p>
             <p class="text-lg" x-text="user.name"></p>
-            <p class="font-bold text-lg">Score:</p>
+            <p class="font-bold text-lg">Current victories:</p>
+            <p class="text-lg" x-text="user.currentVictories"></p>
+            <p class="font-bold text-lg">Current number of cards:</p>
             <p class="text-lg" x-text="userCardObjectsList.length"></p>
           </div>
-          <button x-on:click="userMove" class="bg-green-500 text-white py-3 px-20 rounded">
+          <!-- Add ladda-button class to enable ladda-bootstrap -->
+          <button x-on:click="currentUserPlayedCard === null && userMove" class="ladda-button bg-green-500 text-white py-3 px-20 rounded"
+                  data-style="zoom-in">
             <p class="text-lg">Move</p>
           </button>
         </div>
@@ -40,6 +46,8 @@
           <div class="mb-4">
             <p class="font-bold text-lg">Username:</p>
             <p class="text-lg" x-text="opponentName"></p>
+            <p class="font-bold text-lg">Current victories:</p>
+            <p class="text-lg" x-text="opponentVictories"></p>
             <p class="font-bold text-lg">Score:</p>
             <p class="text-lg" x-text="opponentCardObjectsList.length"></p>
           </div>
@@ -49,6 +57,8 @@
     </div>
   </div>
 </div>
+
+<script src="/dist/game.bundle.js" defer></script>
 
 </body>
 

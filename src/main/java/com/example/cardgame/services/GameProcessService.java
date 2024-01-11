@@ -41,9 +41,10 @@ public class GameProcessService {
 
 
         Random rand = new Random();
-        for (int cardId = 1; cardId <= 27; cardId++){
+        var halfOfDeck = game.getInitialSizeOfDeck() / 2;
+        for (int cardId = 0; cardId < halfOfDeck; cardId++){
             var cardsDeck = game.getGameDeck();
-            var cardIdToFetch = cardsDeck.size() == 27 ? cardId : rand.nextInt(cardsDeck.size()); // so if the deck is not full already, we will fetch random cards from the deck without random
+            var cardIdToFetch = cardsDeck.size() == halfOfDeck ? cardId : rand.nextInt(cardsDeck.size()); // so if the deck is not full already, we will fetch without random
             var card = cardsDeck.get(cardIdToFetch);
             user.addCard(new Card(card));
             game.RemoveCardFromDeck(card);
@@ -65,27 +66,6 @@ public class GameProcessService {
 
         var userMove = user.getCurrentMove(); // move made by the user
         var opponentCurrentMove = opponentUser.getCurrentMove(); // move made by the opponent
-//        if(userMove != null && opponentCurrentMove != null){
-//            var userCard = userMove.getCard();
-//            var opponentCard = opponentCurrentMove.getCard();
-//            var gameStatus = EvaluateMove(userCard, opponentCard);
-//            if(gameStatus == GameStatusAfterMove.WIN){
-//                user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() + 1);
-//                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
-//                    user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() + 1);
-//                }
-//            }
-//            else if(gameStatus == GameStatusAfterMove.LOOSE){
-//                opponentUser.setCurrentNumberOfCards(opponentUser.getCurrentNumberOfCards() - 1);
-//                if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
-//                    user.setCurrentNumberOfCards(user.getCurrentNumberOfCards  () - 1);
-//                }
-//            }
-//            user.setCurrentMove(null);
-//            opponentUser.setCurrentMove(null);
-//            user.setGameStatusAfterLastMove(gameStatus);
-//            statusToReturn = gameStatus;
-//        }
         if(userMove == null){
             var userCard = user.removeFirstCard();
             user.setCurrentMove(new Move(userCard));
@@ -94,8 +74,7 @@ public class GameProcessService {
                 var opponentCard = opponentCurrentMove.getCard();
                 var gameStatus = EvaluateMove(userCard, opponentCard);
                 if(gameStatus == GameStatusAfterMove.WIN){
-                    user.addCard(userCard);
-                    user.addCard(opponentCard);
+                    user.addVictory();
                     if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
 //                        user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() + 1);
                     }
@@ -103,8 +82,7 @@ public class GameProcessService {
                     opponentUser.setGameStatusAfterLastMove(GameStatusAfterMove.LOOSE);
                 }
                 else if(gameStatus == GameStatusAfterMove.LOOSE){
-                    opponentUser.addCard(userCard);
-                    opponentUser.addCard(opponentCard);
+                    opponentUser.addVictory();
                     if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
 //                        user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() - 1);
                     }

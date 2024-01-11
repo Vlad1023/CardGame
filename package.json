@@ -12,6 +12,7 @@
     "@tweenjs/tween.js": "^21.0.0",
     "alpinejs": "^3.13.3",
     "axios": "^1.6.2",
+    "ladda": "^2.0.3",
     "net": "^1.0.2",
     "sockjs-client": "^1.6.1",
     "stomp-websocket": "^2.3.4-next",
