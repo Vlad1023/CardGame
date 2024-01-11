@@ -20,6 +20,8 @@ public class User {
     @Getter
     private LinkedList<Card> currentCards;
     @Getter
+    private int currentVictories = 0;
+    @Getter
     @Setter
     private Move currentMove;
     @Getter
@@ -34,9 +36,11 @@ public class User {
         this.name = name;
         this.currentCards = new LinkedList<>();
     }
-
     public void addCard(Card card) {
         currentCards.add(card);
+    }
+    public void addVictory() {
+        currentVictories++;
     }
     public Card removeFirstCard() {
         if (!currentCards.isEmpty()) {

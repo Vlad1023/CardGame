@@ -41,8 +41,8 @@ class CardPositionManagement {
                 console.log(`Card position: X=${roundedOffsetX}, Z=${roundedOffsetZ}`);
                 console.log(`Card position after tween animation: X=${card.position.x}, Z=${card.position.z}`);
 
-                this.accOffsetX += this.offsetXChange;
-                this.accOffsetZ += this.offsetZChange;
+//                this.accOffsetX += this.offsetXChange; as we just remove cards from scene, we dont need it
+//                this.accOffsetZ += this.offsetZChange;
             });
     }
 }
@@ -67,7 +67,6 @@ export function tweenCardMovementAndRotation(card, targetPosition) {
         //create new rotation vector with same rotation as card but z + Math.PI
         const newRotation = new THREE.Vector3(card.rotation.x, card.rotation.y, card.rotation.z + Math.PI);
 
-        console.log(`Card rotation before move rotation: X=${card.rotation.x}, Y=${card.rotation.y}, Z=${card.rotation.z}`);
         const rotationTween = new TWEEN.Tween(card.rotation)
             .to(newRotation, 1000)
             .onComplete(() => {
@@ -81,12 +80,10 @@ export function tweenCardMovementAndRotation(card, targetPosition) {
 
 export function initCardDisplayment(card) {
     //log card rotation
-    console.log(`Card rotation before applying initial changes: X=${card.rotation.x}, Y=${card.rotation.y}, Z=${card.rotation.z}`);
     const scale = 0.2;
     card.scale.setScalar(scale);
     card.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
     card.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI);
-    console.log(`Card rotation after applying initial changes: X=${card.rotation.x}, Y=${card.rotation.y}, Z=${card.rotation.z}`);
 }
 
 

@@ -55,6 +55,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addMappings(mapper -> {
                     mapper.map(User::getId, GetUserDTO::setUserId);
                     mapper.map(User::getName, GetUserDTO::setName);
+                    mapper.map(User::getCurrentVictories, GetUserDTO::setCurrentVictories);
                     mapper.using(getUserCardsDtoConverter()).map(User::getCurrentCards, GetUserDTO::setCurrentCards);
                 });
 
