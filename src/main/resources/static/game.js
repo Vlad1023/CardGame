@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import SockJS from 'sockjs-client';
 import axios from 'axios';
 import Stomp from 'stompjs';
 import * as Ladda from 'ladda';
+import Swal from 'sweetalert2'
 import startAlpine from './utils/alpine_start.js';
 import loadCardModel from "./utils/load_cardModel.js";
 import { cardPlayerPositionManagement, cardOpponentPositionManagement, tweenCardMovementAndRotation, initCardDisplayment } from "./utils/position_cards.js";
@@ -26,12 +26,14 @@ document.addEventListener('alpine:init', function () {
             opponentCards: null,
             opponentName: null,
 
+            isCardPlayedByUser: false,
+
             scene: null,
             userCardObjectsList: [],
             opponentCardObjectsList: [],
 
-            currentUserPlayedCard: null,
-            currentOpponentPlayedCard: null,
+            currentUserPlayedCards: [],
+            currentOpponentPlayedCards: [],
             opponentVictories: 0,
 
             initFunc: async function () {
@@ -51,11 +53,12 @@ document.addEventListener('alpine:init', function () {
                 l.start();
                 const nextCardObject = this.userCardObjectsList.shift();
                 if (nextCardObject) {
-                    const targetPosition = new THREE.Vector3(-0.6, 0, 0);
+                    const targetPosition = cardPlayerPositionManagement.placeCardOnScenePosition();
                     tweenCardMovementAndRotation(nextCardObject, targetPosition)
                         .then(() => {
-                            this.currentUserPlayedCard = nextCardObject;
+                            this.currentUserPlayedCards.push(nextCardObject);
                             this.makeUserMoveRequest();
+                            this.isCardPlayedByUser = true;
                         });
                 }
             },
@@ -72,15 +75,20 @@ document.addEventListener('alpine:init', function () {
             },
 
             opponentMove: function () {
-                const nextCardObject = this.opponentCardObjectsList.shift();
+                return new Promise(resolve => {
+                    const nextCardObject = this.opponentCardObjectsList.shift();
 
-                if (nextCardObject) {
-                    const targetPosition = new THREE.Vector3(0.8, 0, 0);
-                    tweenCardMovementAndRotation(nextCardObject, targetPosition)
-                        .then(() => {
-                            this.currentOpponentPlayedCard = nextCardObject;
-                        });
-                }
+                    if (nextCardObject) {
+                        const targetPosition = cardOpponentPositionManagement.placeCardOnScenePosition();
+                        tweenCardMovementAndRotation(nextCardObject, targetPosition)
+                            .then(() => {
+                                this.currentOpponentPlayedCards.push(nextCardObject);
+                                resolve();
+                            });
+                    } else {
+                        resolve();
+                    }
+                });
             },
 
             connect: function () {
@@ -96,10 +104,13 @@ document.addEventListener('alpine:init', function () {
 
             resetTheCurrentPlayedCards: function () {
                 console.log("reset is executed");
-                this.scene.remove(this.currentUserPlayedCard);
-                this.scene.remove(this.currentOpponentPlayedCard);
-                this.currentUserPlayedCard = null;
-                this.currentOpponentPlayedCard = null;
+
+                this.currentUserPlayedCards.forEach(cardObj => this.scene.remove(cardObj));
+                this.currentOpponentPlayedCards.forEach(cardObj => this.scene.remove(cardObj));
+                cardOpponentPositionManagement.resetMoveXOffsetAccumulated();
+
+                this.currentUserPlayedCards = [];
+                this.currentOpponentPlayedCards = [];
             },
 
             addUserVictory: function () {
@@ -109,52 +120,102 @@ document.addEventListener('alpine:init', function () {
                 this.opponentVictories++;
             },
 
-            evaluateStatusOfGameAfterOpponentMove: function (opponentStatus) {
-                this.opponentMove();
+            finalMessage: function () {
+                this.user.currentVictories > this.opponentVictories ?
+                    Swal.fire("Game is finished! You won! Going back to lobby...") :
+                    Swal.fire("Game is finished! You lost! Going back to lobby...");
+            },
+
+            notificationThatUserWon: function () {
+                Swal.fire({
+                  position: "top-end",
+                  icon: "success",
+                  title: "You won the round!",
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+            },
+
+            notificationThatUserLost: function () {
+                Swal.fire({
+                  position: "top-end",
+                  icon: "error",
+                  title: "You lost the round!",
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+            },
+
+            finishGame: function () {
+                this.finalMessage();
+                setTimeout(() => {
+                  const userId = this.user.userId;
+                  window.location.href = '/main?userId=' + userId;
+                }, "3000");
+            },
+
+
+            evaluateStatusOfGameAfterOpponentMove: async function (opponentStatus) {
+                await this.opponentMove();
                 if (opponentStatus.includes("LOOSE")) { // means that current user won
+                    console.log("User won after opponent move!");
                     this.addUserVictory();
-                    console.log("evaluateStatusOfGameAfterOpponentMove is executed, starting animation of movement");
-                    cardPlayerPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard)
-                       .then(() => cardPlayerPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard))
-                        .then(() => {
-                            this.resetTheCurrentPlayedCards();
-                        });
+                    this.animateCardList(cardPlayerPositionManagement, this.currentUserPlayedCards);
+                    this.animateCardList(cardPlayerPositionManagement, this.currentOpponentPlayedCards);
+                    this.notificationThatUserWon();
                 }
                 else if (opponentStatus.includes("WIN")) { // means that current user lost
+                    console.log("User lost after opponent move!");
                     this.addOpponentVictory();
-                    console.log("evaluateStatusOfGameAfterOpponentMove is executed, starting animation of movement");
-                    cardOpponentPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard)
-                        .then(() => cardOpponentPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard))
-                        .then(() => {
-                            this.resetTheCurrentPlayedCards();
-                        });
+                    this.animateCardList(cardOpponentPositionManagement, this.currentUserPlayedCards);
+                    this.animateCardList(cardOpponentPositionManagement, this.currentOpponentPlayedCards);
+                    this.notificationThatUserLost();
+                }
+
+                if(this.userCardObjectsList.length === 0 && this.opponentCardObjectsList.length === 0) {
+                    this.finishGame();
                 }
             },
 
             evaluateStatusOfGameAfterUserMove: function (userStatus) {
                 if (userStatus.includes("WIN")) {
+                    console.log("User won after his move!");
+                    cardPlayerPositionManagement.resetMoveXOffsetAccumulated();
                     this.addUserVictory();
-                    console.log("evaluateStatusOfGameAfterUserMove is executed, starting animation of movement");
-                    cardPlayerPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard)
-                        .then(() => cardPlayerPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard))
-                        .then(() => {
-                            this.resetTheCurrentPlayedCards();
-                            l.stop();
-                        });
+
+                    this.animateCardList(cardPlayerPositionManagement, this.currentUserPlayedCards);
+                    this.animateCardList(cardPlayerPositionManagement, this.currentOpponentPlayedCards);
+                    this.notificationThatUserWon();
                 } else if (userStatus.includes("LOOSE")) {
+                    console.log("User lost after his move!");
+                    cardOpponentPositionManagement.resetMoveXOffsetAccumulated();
                     this.addOpponentVictory();
-                    console.log("evaluateStatusOfGameAfterUserMove is executed, starting animation of movement");
-                    cardOpponentPositionManagement.placeCardInTheEnd(this.currentUserPlayedCard)
-                        .then(() => cardOpponentPositionManagement.placeCardInTheEnd(this.currentOpponentPlayedCard))
-                        .then(() => {
-                            this.resetTheCurrentPlayedCards();
-                            l.stop();
-                        });
+
+                    this.animateCardList(cardOpponentPositionManagement, this.currentUserPlayedCards);
+                    this.animateCardList(cardOpponentPositionManagement, this.currentOpponentPlayedCards);
+                    this.notificationThatUserLost();
+
                 } else {
                     l.stop();
                 }
+                this.isCardPlayedByUser = false;
+
+                if(this.userCardObjectsList.length === 0 && this.opponentCardObjectsList.length === 0) {
+                    this.finishGame();
+                }
             },
 
+            animateCardList: function (positionManagement, cardList) {
+                const animationPromises = cardList.map((card) => {
+                    return positionManagement.placeCardInTheEnd(card);
+                });
+
+                Promise.all(animationPromises)
+                    .then(() => {
+                        this.resetTheCurrentPlayedCards();
+                        l.stop();
+                    });
+            },
 
 
             initScene: async function () {
@@ -173,14 +234,11 @@ document.addEventListener('alpine:init', function () {
                 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
                 renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 
-                const controls = new OrbitControls(camera, renderer.domElement);
                 camera.position.set(0, 0, 5);
-                controls.update();
 
                 const scene = new THREE.Scene();
                 this.scene = scene;
                 scene.background = new THREE.Color(0xeeeeee);
-                scene.add(new THREE.AxesHelper(1));
 
                 try {
                     // Enable loading overlay when starting to load card models
@@ -223,7 +281,6 @@ document.addEventListener('alpine:init', function () {
                 function animate() {
                     requestAnimationFrame(animate);
 
-                    controls.update();
                     TWEEN.update();
 
                     renderer.render(scene, camera);

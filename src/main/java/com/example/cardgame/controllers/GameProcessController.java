@@ -42,8 +42,6 @@ public class GameProcessController {
     UserService userService;
     @Autowired
     ObjectMapper mapper;
-    @Autowired
-    SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -89,15 +87,6 @@ public class GameProcessController {
     public ResponseEntity<GameStatusAfterMove> MakeUsersMove(@PathVariable("gameId") @GameIdConstraint String gameId, HttpSession httpSession) throws JsonProcessingException {
         var userId = httpSession.getAttribute("userId").toString();
         var status = gameProcessService.MakeUsersMove(userId, gameId);
-        var user = userRepository.findById(userId).get();
-        var game = gameRepository.findById(gameId).get();
-        var opponentUserId = userService.GetUserOpponentId(game, user);
-        this.notifyUserThatOpponentMadeAMove(opponentUserId, status);
         return ResponseEntity.ok(status);
-    }
-
-    private void notifyUserThatOpponentMadeAMove(String opponentUserId, GameStatusAfterMove gameStatusAfterMove) throws JsonProcessingException {
-        var destination = "/game/opponentMadeMove";
-        messagingTemplate.convertAndSendToUser(opponentUserId, destination, gameStatusAfterMove);
     }
 }

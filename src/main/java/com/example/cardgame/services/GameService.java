@@ -60,4 +60,9 @@ public class GameService {
         gameRepository.save(gameToJoin);
         return gameToJoin;
     }
+
+    public void FinishGame(@GameIdConstraint String gameId){
+        var game = gameRepository.findById(gameId).get();
+        gameRepository.delete(game);
+    }
 }

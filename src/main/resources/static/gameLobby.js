@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import SockJS from 'sockjs-client';
 import axios from 'axios';
 import Stomp from 'stompjs';
@@ -52,13 +51,10 @@ document.addEventListener('alpine:init', function () {
                 renderer.setSize(canvas.clientWidth, canvas.clientHeight);
                 renderer.setClearColor( 0x000000, 0 );
 
-                const controls = new OrbitControls(camera, renderer.domElement);
                 camera.position.set(0, 0, 5);
-                controls.update();
 
                 const scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xeeeeee);
-                scene.add(new THREE.AxesHelper(1));
 
                 try {
                     const cardsList = []
@@ -85,7 +81,6 @@ document.addEventListener('alpine:init', function () {
                 function animate() {
                     requestAnimationFrame(animate);
 
-                    controls.update();
 
                     renderer.render(scene, camera);
                 }

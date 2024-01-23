@@ -24,9 +24,6 @@ public class User {
     @Getter
     @Setter
     private Move currentMove;
-    @Getter
-    @Setter
-    private GameStatusAfterMove gameStatusAfterLastMove;
     public int getCurrentNumberOfCards() {
         return currentCards.size();
     }

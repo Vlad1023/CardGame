@@ -31,8 +31,7 @@
             <p class="font-bold text-lg">Current number of cards:</p>
             <p class="text-lg" x-text="userCardObjectsList.length"></p>
           </div>
-          <!-- Add ladda-button class to enable ladda-bootstrap -->
-          <button x-on:click="currentUserPlayedCard === null && userMove" class="ladda-button bg-green-500 text-white py-3 px-20 rounded"
+          <button x-on:click="!isCardPlayedByUser && currentUserPlayedCards.length <= currentOpponentPlayedCards.length && userMove" class="ladda-button bg-green-500 text-white py-3 px-20 rounded"
                   data-style="zoom-in">
             <p class="text-lg">Move</p>
           </button>

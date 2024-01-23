@@ -9,6 +9,7 @@ import com.example.cardgame.repositories.GameRepository;
 import com.example.cardgame.repositories.UserRepository;
 import com.example.cardgame.validators.GameIdConstraint;
 import com.example.cardgame.validators.UserIdConstraint;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class GameProcessService {
     }
 
 
-    public GameStatusAfterMove MakeUsersMove(@UserIdConstraint String userId, @GameIdConstraint String gameId){
+    public GameStatusAfterMove MakeUsersMove(@UserIdConstraint String userId, @GameIdConstraint String gameId) throws JsonProcessingException {
         var game = gameRepository.findById(gameId).get();
         var user = userRepository.findById(userId).get(); // the user that made the move
         var opponentUserId = userService.GetUserOpponentId(game, user);
@@ -75,33 +76,27 @@ public class GameProcessService {
                 var gameStatus = EvaluateMove(userCard, opponentCard);
                 if(gameStatus == GameStatusAfterMove.WIN){
                     user.addVictory();
-                    if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
-//                        user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() + 1);
-                    }
-                    user.setGameStatusAfterLastMove(GameStatusAfterMove.WIN);
-                    opponentUser.setGameStatusAfterLastMove(GameStatusAfterMove.LOOSE);
                 }
                 else if(gameStatus == GameStatusAfterMove.LOOSE){
                     opponentUser.addVictory();
-                    if(user.getGameStatusAfterLastMove() != null && user.getGameStatusAfterLastMove() == GameStatusAfterMove.DRAW){
-//                        user.setCurrentNumberOfCards(user.getCurrentNumberOfCards() - 1);
-                    }
-                    user.setGameStatusAfterLastMove(GameStatusAfterMove.LOOSE);
-                    opponentUser.setGameStatusAfterLastMove(GameStatusAfterMove.WIN);
-                }
-                else if(gameStatus == GameStatusAfterMove.DRAW){
-                    user.setGameStatusAfterLastMove(GameStatusAfterMove.DRAW);
-                    opponentUser.setGameStatusAfterLastMove(GameStatusAfterMove.DRAW);
                 }
                 user.setCurrentMove(null);
                 opponentUser.setCurrentMove(null);
                 statusToReturn = gameStatus;
             }
+            this.notifyUserThatOpponentMadeAMove(opponentUserId, statusToReturn);
+        }
+        if(user.getCurrentCards().size() == 0 && opponentUser.getCurrentCards().size() == 0){
+            this.FinishGame(game);
         }
         userRepository.save(user);
         userRepository.save(opponentUser);
 
         return statusToReturn;
+    }
+
+    private void FinishGame(Game game){
+        gameRepository.delete(game);
     }
 
     private GameStatusAfterMove EvaluateMove(Card userCard, Card opponentCard){
@@ -116,5 +111,10 @@ public class GameProcessService {
         else{
             return GameStatusAfterMove.DRAW;
         }
+    }
+
+    private void notifyUserThatOpponentMadeAMove(String opponentUserId, GameStatusAfterMove gameStatusAfterMove) throws JsonProcessingException {
+        var destination = "/game/opponentMadeMove";
+        messagingTemplate.convertAndSendToUser(opponentUserId, destination, gameStatusAfterMove);
     }
 }

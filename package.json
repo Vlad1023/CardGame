@@ -17,8 +17,10 @@
     "sockjs-client": "^1.6.1",
     "stomp-websocket": "^2.3.4-next",
     "stompjs": "^2.3.3",
+    "sweetalert2": "^11.10.3",
     "three": "^0.159.0",
-    "three-fbx-loader": "^1.0.3"
+    "three-fbx-loader": "^1.0.3",
+    "toastify-js": "^1.12.0"
   },
   "devDependencies": {
     "webpack": "^5.89.0",

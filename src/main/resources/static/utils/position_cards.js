@@ -3,7 +3,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
 
 class CardPositionManagement {
-    constructor(offsetXStart, offsetZStart, offsetXChange, offsetZChange, bottomOffset) {
+    constructor(offsetXStart, offsetZStart, offsetXChange, offsetZChange, bottomOffset, moveXOffsetStart, moveXOffsetChange) {
         this.offsetXStart = offsetXStart;
         this.offsetZStart = offsetZStart;
         this.offsetXChange = offsetXChange;
@@ -11,6 +11,12 @@ class CardPositionManagement {
         this.bottomOffset = bottomOffset;
         this.accOffsetX = 0;
         this.accOffsetZ = 0;
+
+        this.moveXOffsetStart = moveXOffsetStart;
+        this.moveXOffsetChange = moveXOffsetChange;
+
+        this.moveXOffsetAccumulated = moveXOffsetStart;
+
     }
 
     positionCards(models) {
@@ -44,6 +50,18 @@ class CardPositionManagement {
 //                this.accOffsetX += this.offsetXChange; as we just remove cards from scene, we dont need it
 //                this.accOffsetZ += this.offsetZChange;
             });
+    }
+
+    placeCardOnScenePosition(){
+        const neededXOffset = this.moveXOffsetAccumulated;
+        const targetPosition = new THREE.Vector3(neededXOffset, 0, 0);
+
+        this.moveXOffsetAccumulated += this.moveXOffsetChange;
+        return targetPosition;
+    }
+
+    resetMoveXOffsetAccumulated(){
+        this.moveXOffsetAccumulated = this.moveXOffsetStart;
     }
 }
 
@@ -79,7 +97,6 @@ export function tweenCardMovementAndRotation(card, targetPosition) {
 }
 
 export function initCardDisplayment(card) {
-    //log card rotation
     const scale = 0.2;
     card.scale.setScalar(scale);
     card.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
@@ -90,8 +107,8 @@ export function initCardDisplayment(card) {
 
 
 
-const cardPlayerPositionManagement = new CardPositionManagement(-3, 0.0, 0.01, -0.05, -2.5);
-const cardOpponentPositionManagement = new CardPositionManagement(5, 0.0, 0.01, -0.05, 2.5);
+const cardPlayerPositionManagement = new CardPositionManagement(-3, 0.0, 0.01, -0.05, -2.5, -0.6, -0.1);
+const cardOpponentPositionManagement = new CardPositionManagement(5, 0.0, 0.01, -0.05, 2.5, 0.8, 0.1);
 
 function roundToPrecision(number, precision) {
     const factor = Math.pow(10, precision);
