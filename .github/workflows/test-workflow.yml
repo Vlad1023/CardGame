@@ -74,4 +74,4 @@ jobs:
           key: ${{ secrets.AWS_PEM_KEY }}
           port: 22
           script: |
-            echo 'Connected to EC2 instance'
+            docker login
