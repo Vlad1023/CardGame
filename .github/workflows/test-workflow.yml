@@ -70,6 +70,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_FILE }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'Connected to EC2 instance'"
         env:
-          SSH_PRIVATE_KEY_FILE: ${{ secrets.AWS_PEM_KEYE }}
+          SSH_PRIVATE_KEY_FILE: ${{ secrets.AWS_PEM_KEY }}
           SSH_USERNAME: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
           SSH_HOST: ${{ secrets.AWS_INSTANCE_CARDGAME_HOST }}
