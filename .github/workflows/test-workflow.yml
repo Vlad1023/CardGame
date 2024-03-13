@@ -66,12 +66,10 @@ jobs:
           tags: vlad1023/cardgame-app:latest
           build-args: JAR_FILE=app_build
           
-      - name: AWS instance set up
-        uses: Core2Goal/ssh-action@v1
-        with:
-          host: ${{ secrets.AWS_INSTANCE_CARDGAME_HOST }}
-          port: 22
-          username: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
-          private_key: ${{ secrets.AWS_PEM_KEY }}
-          script: |
-            sudo docker images
+      - name: Connect to EC2 instance via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_FILE }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'Connected to EC2 instance'"
+        env:
+          SSH_PRIVATE_KEY_FILE: ${{ secrets.AWS_PEM_KEYE }}
+          SSH_USERNAME: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
+          SSH_HOST: ${{ secrets.AWS_INSTANCE_CARDGAME_HOST }}
