@@ -73,4 +73,4 @@ jobs:
           username: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
           private_key: ${{ secrets.AWS_PEM_KEY }}
           script: |
-            echo "Hello World"
+            sudo docker images
