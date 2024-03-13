@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app_build
-          path: ./target
+          path: target/cardgame-0.0.1-SNAPSHOT.jar
 
   docker_build:
 
@@ -61,4 +61,4 @@ jobs:
         with:
           push: true
           tags: cardgame-app:latest
-          build-args: JAR_FILE=./app_build/cardgame-0.0.1-SNAPSHOT.jar
+          build-args: JAR_FILE=app_build
