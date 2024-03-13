@@ -64,13 +64,13 @@ jobs:
           context: .
           tags: vlad1023/cardgame-app:latest
           build-args: JAR_FILE=app_build
+          
       - name: AWS instance set up
-        uses: appleboy/ssh-action@v1.0.3
+        uses: Core2Goal/ssh-action@v1
         with:
           host: ${{ secrets.AWS_INSTANCE_CARDGAME_HOST }}
+          port: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
           username: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
-          key: ${{ secrets.AWS_PEM_KEY }}
-          envs: GITHUB_SHA
-          port: 22
+          private_key: ${{ secrets.AWS_PEM_KEY }}
           script: |
-            docker login
+            echo "Hello World"
