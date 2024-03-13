@@ -20,9 +20,5 @@ jobs:
           java-version: '19'
           distribution: 'oracle'
           architecture: x64
-      - name: Set executable permissions
-        run: chmod +x webpack_task.bat
-      - name: Run Webpack Task
-        run: ./webpack_task.bat
       - name: Maven Package
         run: mvn -B clean package -DskipTests
