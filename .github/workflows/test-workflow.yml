@@ -22,6 +22,11 @@ jobs:
           architecture: x64
       - name: Maven Package
         run: mvn -B clean package -DskipTests
+      - name: Publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-artifact
+          path: target/cardgame-0.0.1-SNAPSHOT.jar
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub
@@ -29,8 +34,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: my-artifact
+          path: my-artifact
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: cardgame-app:latest
+          build-args: JAR_FILE=my-artifact/cardgame-0.0.1-SNAPSHOT.jar
