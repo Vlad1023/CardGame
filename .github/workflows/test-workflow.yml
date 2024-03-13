@@ -29,7 +29,7 @@ jobs:
       - name: Publish artifact
         uses: actions/upload-artifact@v4
         with:
-          name: my-artifact
+          name: app_build
           path: target/cardgame-0.0.1-SNAPSHOT.jar
 
   docker_build:
@@ -45,8 +45,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: my-artifact
-          path: my-artifact
+          name: app_build
+          path: app_build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -62,4 +62,4 @@ jobs:
         with:
           push: true
           tags: cardgame-app:latest
-          build-args: JAR_FILE=my-artifact/cardgame-0.0.1-SNAPSHOT.jar
+          build-args: JAR_FILE=app_build
