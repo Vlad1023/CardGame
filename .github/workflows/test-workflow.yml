@@ -32,9 +32,9 @@ jobs:
           name: app_build
           path: target/cardgame-0.0.1-SNAPSHOT.jar
 
-  docker_build:
+  docker_build_and_pull_to_aws:
 
-    name: Build Docker Image
+    name: Build Docker Image and pull from AWS instance
     needs: app_compile
     runs-on: ubuntu-latest
 
@@ -64,3 +64,12 @@ jobs:
           context: .
           tags: vlad1023/cardgame-app:latest
           build-args: JAR_FILE=app_build
+      - name: AWS instance set up
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_INSTANCE_CARDGAME_HOST }}
+          username: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
+          key: ${{ secrets.AWS_PEM_KEY }}
+          port: 22
+          script: |
+            docker login
