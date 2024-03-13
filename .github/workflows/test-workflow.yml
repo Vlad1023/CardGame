@@ -7,40 +7,58 @@ on:
 
 jobs:
 
-  artifact:
+  app_compile:
 
     name: Test master branch - GitHub Packages
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
       - name: Set up JDK 19 for x64
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v2
         with:
           java-version: '19'
           distribution: 'oracle'
           architecture: x64
+
       - name: Maven Package
         run: mvn -B clean package -DskipTests
+
       - name: Publish artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: my-artifact
           path: target/cardgame-0.0.1-SNAPSHOT.jar
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_LOGIN }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+
+  docker_build:
+
+    name: Build Docker Image
+    needs: app_compile
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v2
         with:
           name: my-artifact
           path: my-artifact
-      - name: Build and push
-        uses: docker/build-push-action@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
         with:
           push: true
           tags: cardgame-app:latest
