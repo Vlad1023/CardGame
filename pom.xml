@@ -83,6 +83,34 @@
 				<version>3.0.0</version>
 				<executions>
 					<execution>
+						<id>npm-install</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>webpack-minify</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>npx</executable>
+							<arguments>
+								<argument>webpack</argument>
+								<argument>--config</argument>
+								<argument>webpack.config.js</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
 						<id>npm-build</id>
 						<phase>generate-resources</phase>
 						<goals>
