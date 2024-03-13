@@ -70,6 +70,7 @@ jobs:
           host: ${{ secrets.AWS_INSTANCE_CARDGAME_HOST }}
           username: ${{ secrets.AWS_INSTANCE_CARDGAME_USERNAME }}
           key: ${{ secrets.AWS_PEM_KEY }}
+          envs: GITHUB_SHA
           port: 22
           script: |
             docker login
